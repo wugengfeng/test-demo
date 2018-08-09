@@ -103,5 +103,6 @@ public class SeleniumTest {
         Select select = new Select(webDriver.findElement(By.cssSelector("select")));
         select.selectByValue("opel");
 
+
     }
 }
