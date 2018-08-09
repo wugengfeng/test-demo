@@ -97,8 +97,11 @@ public class SeleniumTest {
     @Test
     public void select() {
         WebDriver webDriver = new ChromeDriver();
-        webDriver.get("http://www.w3school.com.cn//tiy/loadtext.asp?f=html_input_checked");
+        webDriver.get("http://www.w3school.com.cn//tiy/loadtext.asp?f=html_select");
 
+        // 指定选中select的指定值
+        Select select = new Select(webDriver.findElement(By.cssSelector("select")));
+        select.selectByValue("opel");
 
     }
 }
