@@ -11,7 +11,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
-public class SeleniumTest {
+public class WebDriverTest {
 
     /**
      * 基础选择
@@ -163,6 +163,9 @@ public class SeleniumTest {
         webDriver.quit();
     }
 
+    /**
+     * 操作浏览器
+     */
     @Test
     public void navigate() {
         WebDriver webDriver = new ChromeDriver();
@@ -216,19 +219,5 @@ public class SeleniumTest {
 
         webDriver.manage().deleteCookieNamed("key");
         webDriver.manage().deleteAllCookies();
-    }
-
-    /**
-     * 使用Action 执行拖放操作
-     */
-    @Test
-    public void Actions() {
-        WebDriver webDriver = new ChromeDriver();
-        webDriver.get("http://www.bootcss.com/p/layoutit/");
-        WebElement element = webDriver.findElement(By.cssSelector("#estRows > div:nth-child(4) > span"));
-        WebElement target = webDriver.findElement(By.cssSelector(".demo.ui-sortable"));
-        new Actions(webDriver).dragAndDrop(element, target).perform();
-        //action.key_down(keys.CONTROL).send_keys('a').key_up(keys.CONTROL).PERFORM()#ctrl+a键盘操作
-        new Actions(webDriver).keyDown(Keys.LEFT_CONTROL).sendKeys("t").keyUp(Keys.LEFT_CONTROL).perform();
     }
 }
