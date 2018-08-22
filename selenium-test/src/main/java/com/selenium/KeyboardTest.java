@@ -125,9 +125,7 @@ public class KeyboardTest {
         new WebDriverWait(webDriver, 10).until(
                 ExpectedConditions.presenceOfElementLocated(By.cssSelector("body > div.module-cardtip-box > div.module-content > div.words > p.tip-button"))).click();
 
-        // 上传操作
-        // 上传按钮
-        WebElement uploadBtn = webDriver.findElement(By.id("h5Input0"));
-        new Actions(webDriver).click(uploadBtn).sendKeys(uploadBtn, "D:\\timg.jpg").perform();
+        // 上传操作 上传操作不能用Actions
+        webDriver.findElement(By.id("h5Input0")).sendKeys("D:\\timg.jpg");
     }
 }
