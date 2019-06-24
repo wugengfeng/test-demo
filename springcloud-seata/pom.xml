@@ -41,18 +41,6 @@
 
             <dependency>
                 <groupId>com.wgf</groupId>
-                <artifactId>account-facade</artifactId>
-                <version>${project.version}</version>
-            </dependency>
-
-            <dependency>
-                <groupId>com.wgf</groupId>
-                <artifactId>storage-facade</artifactId>
-                <version>${project.version}</version>
-            </dependency>
-
-            <dependency>
-                <groupId>com.wgf</groupId>
                 <artifactId>business-common</artifactId>
                 <version>${project.version}</version>
             </dependency>
@@ -117,9 +105,9 @@
     </dependencyManagement>
 
     <modules>
+        <module>eureka-server</module>
         <module>business-server</module>
         <module>business-common</module>
-        <module>eureka-server</module>
         <module>order-facade</module>
         <module>order-server</module>
         <module>account-facade</module>
