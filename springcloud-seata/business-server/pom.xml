@@ -6,7 +6,7 @@
         <groupId>com.wgf</groupId>
         <artifactId>springcloud-seata</artifactId>
         <version>0.0.1-SNAPSHOT</version>
-        <relativePath/>
+        <relativePath>../../springcloud-seata</relativePath>
     </parent>
     <groupId>com.wgf</groupId>
     <artifactId>business-server</artifactId>
@@ -24,6 +24,21 @@
         <dependency>
             <groupId>com.wgf</groupId>
             <artifactId>order-facade</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>com.wgf</groupId>
+            <artifactId>storage-facade</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>com.wgf</groupId>
+            <artifactId>account-facade</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>com.wgf</groupId>
+            <artifactId>business-common</artifactId>
         </dependency>
 
         <dependency>

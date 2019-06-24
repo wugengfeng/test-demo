@@ -8,6 +8,7 @@
         <version>2.1.5.RELEASE</version>
         <relativePath/> <!-- lookup parent from repository -->
     </parent>
+
     <groupId>com.wgf</groupId>
     <artifactId>springcloud-seata</artifactId>
     <version>0.0.1-SNAPSHOT</version>
@@ -17,6 +18,15 @@
 
     <properties>
         <java.version>1.8</java.version>
+        <spring-cloud.version>Greenwich.SR1</spring-cloud.version>
+        <mybatis-mapper.version>2.1.1</mybatis-mapper.version>
+        <mybatis-starter.version>1.3.2</mybatis-starter.version>
+        <pagehelper.version>5.0.3</pagehelper.version>
+        <mysql-connector.version>5.1.13</mysql-connector.version>
+        <generator-core.version>1.3.5</generator-core.version>
+        <commons-lang3.version>3.8.1</commons-lang3.version>
+        <commons-collections4.version>4.2</commons-collections4.version>
+        <swagger2.version>2.7.0</swagger2.version>
     </properties>
 
     <dependencyManagement>
@@ -41,11 +51,74 @@
                 <version>${project.version}</version>
             </dependency>
 
+            <dependency>
+                <groupId>com.wgf</groupId>
+                <artifactId>business-common</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>tk.mybatis</groupId>
+                <artifactId>mapper-spring-boot-starter</artifactId>
+                <version>${mybatis-mapper.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.mybatis.spring.boot</groupId>
+                <artifactId>mybatis-spring-boot-starter</artifactId>
+                <version>${mybatis-starter.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>com.github.pagehelper</groupId>
+                <artifactId>pagehelper</artifactId>
+                <version>${pagehelper.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>mysql</groupId>
+                <artifactId>mysql-connector-java</artifactId>
+                <version>${mysql-connector.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.mybatis.generator</groupId>
+                <artifactId>mybatis-generator-core</artifactId>
+                <version>${generator-core.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.apache.commons</groupId>
+                <artifactId>commons-lang3</artifactId>
+                <version>${commons-lang3.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.apache.commons</groupId>
+                <artifactId>commons-collections4</artifactId>
+                <version>${commons-collections4.version}</version>
+            </dependency>
+
+            <!--swagger2-->
+            <dependency>
+                <groupId>io.springfox</groupId>
+                <artifactId>springfox-swagger2</artifactId>
+                <version>${swagger2.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>io.springfox</groupId>
+                <artifactId>springfox-swagger-ui</artifactId>
+                <version>${swagger2.version}</version>
+            </dependency>
+            <!--swagger end-->
+
         </dependencies>
     </dependencyManagement>
 
     <modules>
         <module>business-server</module>
+        <module>business-common</module>
         <module>eureka-server</module>
         <module>order-facade</module>
         <module>order-server</module>

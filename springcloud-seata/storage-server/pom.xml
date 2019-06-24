@@ -6,7 +6,7 @@
 		<groupId>com.wgf</groupId>
 		<artifactId>springcloud-seata</artifactId>
 		<version>0.0.1-SNAPSHOT</version>
-		<relativePath/>
+		<relativePath>../../springcloud-seata</relativePath>
 	</parent>
 	<groupId>com.wgf</groupId>
 	<artifactId>storage-server</artifactId>
@@ -42,6 +42,11 @@
 		</dependency>
 
 		<dependency>
+			<groupId>com.wgf</groupId>
+			<artifactId>business-common</artifactId>
+		</dependency>
+
+		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-test</artifactId>
 			<scope>test</scope>
@@ -65,6 +70,13 @@
 			<plugin>
 				<groupId>org.springframework.boot</groupId>
 				<artifactId>spring-boot-maven-plugin</artifactId>
+				<executions>
+					<execution>
+						<goals>
+							<goal>repackage</goal>
+						</goals>
+					</execution>
+				</executions>
 			</plugin>
 		</plugins>
 	</build>

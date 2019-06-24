@@ -1,4 +1,4 @@
-package com.wgf.order.config;
+package com.wgf.config;
 
 import feign.Feign;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;

@@ -1,22 +1,15 @@
 package com.wgf.storage;
 
+import com.wgf.annotation.EnableMicroserviceClient;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.springframework.cloud.client.circuitbreaker.EnableCircuitBreaker;
-import org.springframework.cloud.netflix.eureka.EnableEurekaClient;
-import org.springframework.cloud.openfeign.EnableFeignClients;
 
-// 启动eureka
-@EnableEurekaClient
-// 启动feign
-@EnableFeignClients
-// 启动熔断器
-@EnableCircuitBreaker
+@EnableMicroserviceClient
 @SpringBootApplication
 public class StorageServerApplication {
 
-	public static void main(String[] args) {
-		SpringApplication.run(StorageServerApplication.class, args);
-	}
+    public static void main(String[] args) {
+        SpringApplication.run(StorageServerApplication.class, args);
+    }
 
 }
