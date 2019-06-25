@@ -1,4 +1,4 @@
-package com.wgf.config;
+package com.wgf.account.config;
 
 import feign.Feign;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
