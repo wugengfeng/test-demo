@@ -3,12 +3,12 @@ package com.wgf.account.entity;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import javax.persistence.*;
+import java.math.BigDecimal;
 
 @ApiModel(value = "AccountTbl", description = "")
 @Table(name = "account_tbl")
 public class AccountTbl {
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @ApiModelProperty(value = "")
     private Integer id;
 
@@ -17,7 +17,7 @@ public class AccountTbl {
     private String userId;
 
     @ApiModelProperty(value = "")
-    private Integer money;
+    private BigDecimal money;
 
     /**
      * @return id
@@ -47,17 +47,11 @@ public class AccountTbl {
         this.userId = userId;
     }
 
-    /**
-     * @return money
-     */
-    public Integer getMoney() {
+    public BigDecimal getMoney() {
         return money;
     }
 
-    /**
-     * @param money
-     */
-    public void setMoney(Integer money) {
+    public void setMoney(BigDecimal money) {
         this.money = money;
     }
 }

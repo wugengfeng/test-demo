@@ -5,15 +5,18 @@ spring:
   application:
     name: storage-server
 
-  datasource:
-  type: com.alibaba.druid.pool.DruidDataSource
-  driverClassName: com.mysql.cj.jdbc.Driver
-  druid:
-    order:
-      url: jdbc:mysql://47.106.207.16:3306/db_storage?serverTimezone=UTC&useSSL=false&allowPublicKeyRetrieval=true&characterEncoding=utf8
-      username: root
-      password: wgf123
+  # 分布式事务配置
+  cloud:
+    alibaba:
+      fescar:
+        tx-service-group: my_test_tx_group
 
+  datasource:
+    url: jdbc:mysql://47.106.207.16:3306/db_storage?serverTimezone=UTC&useSSL=false&allowPublicKeyRetrieval=true&characterEncoding=utf8
+    username: root
+    password: wgf123
+    type: com.alibaba.druid.pool.DruidDataSource
+    driverClassName: com.mysql.cj.jdbc.Driver
     initial-size: 5
     max-active: 20
     min-idle: 5

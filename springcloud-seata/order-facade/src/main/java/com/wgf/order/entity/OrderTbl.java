@@ -3,12 +3,12 @@ package com.wgf.order.entity;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import javax.persistence.*;
+import java.math.BigDecimal;
 
 @ApiModel(value = "OrderTbl", description = "")
 @Table(name = "order_tbl")
 public class OrderTbl {
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @ApiModelProperty(value = "")
     private Integer id;
 
@@ -36,7 +36,7 @@ public class OrderTbl {
      * 商品金额
      */
     @ApiModelProperty(value = "商品金额")
-    private Integer money;
+    private BigDecimal money;
 
     /**
      * @return id
@@ -106,21 +106,11 @@ public class OrderTbl {
         this.count = count;
     }
 
-    /**
-     * 获取商品金额
-     *
-     * @return money - 商品金额
-     */
-    public Integer getMoney() {
+    public BigDecimal getMoney() {
         return money;
     }
 
-    /**
-     * 设置商品金额
-     *
-     * @param money 商品金额
-     */
-    public void setMoney(Integer money) {
+    public void setMoney(BigDecimal money) {
         this.money = money;
     }
 }

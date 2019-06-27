@@ -1,5 +1,7 @@
 package com.wgf.order.config;
 
+import com.alibaba.druid.pool.DruidDataSource;
+import com.alibaba.fescar.rm.datasource.DataSourceProxy;
 import com.github.pagehelper.PageInterceptor;
 import com.wgf.mybatis.mapper.Mapper;
 import org.apache.ibatis.plugin.Interceptor;
@@ -9,7 +11,6 @@ import org.mybatis.spring.SqlSessionTemplate;
 import org.mybatis.spring.annotation.MapperScan;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.context.properties.ConfigurationProperties;
-import org.springframework.boot.jdbc.DataSourceBuilder;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
@@ -33,20 +34,26 @@ public class OrderDataSourceConfig {
     public static final String MAPPER_LOCATION = "classpath:mapper/order/*.xml";
 
     @Bean
-    @ConfigurationProperties(prefix = "spring.datasource.druid.order")
-    public DataSource orderDataSource() {
-        return DataSourceBuilder.create().type(com.alibaba.druid.pool.DruidDataSource.class).build();
+    @ConfigurationProperties(prefix = "spring.datasource")
+    public DruidDataSource orderDataSource() {
+        DruidDataSource druidDataSource = new DruidDataSource();
+        return druidDataSource;
     }
 
     @Bean
-    public DataSourceTransactionManager orderTransactionManager(@Qualifier("orderDataSource") DataSource dataSource) {
-        return new DataSourceTransactionManager(dataSource);
+    public DataSourceProxy orderDataSourceProxy(@Qualifier("orderDataSource") DruidDataSource druidDataSource) {
+        return new DataSourceProxy(druidDataSource);
     }
 
     @Bean
-    public SqlSessionFactory orderSqlSessionFactory(@Qualifier("orderDataSource") DataSource dataSource) throws Exception {
+    public DataSourceTransactionManager orderTransactionManager(@Qualifier("orderDataSourceProxy") DataSourceProxy dataSourceProxy) {
+        return new DataSourceTransactionManager(dataSourceProxy);
+    }
+
+    @Bean
+    public SqlSessionFactory orderSqlSessionFactory(@Qualifier("orderDataSourceProxy") DataSourceProxy dataSourceProxy) throws Exception {
         final SqlSessionFactoryBean sessionFactory = new SqlSessionFactoryBean();
-        sessionFactory.setDataSource(dataSource);
+        sessionFactory.setDataSource(dataSourceProxy);
 
 
         //更多详细配置见: https://pagehelper.github.io/docs/howtouse/

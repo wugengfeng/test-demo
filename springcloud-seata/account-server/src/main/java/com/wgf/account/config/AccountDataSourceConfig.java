@@ -1,5 +1,7 @@
 package com.wgf.account.config;
 
+import com.alibaba.druid.pool.DruidDataSource;
+import com.alibaba.fescar.rm.datasource.DataSourceProxy;
 import com.github.pagehelper.PageInterceptor;
 import com.wgf.mybatis.mapper.Mapper;
 import org.apache.ibatis.plugin.Interceptor;
@@ -33,20 +35,26 @@ public class AccountDataSourceConfig {
     public static final String MAPPER_LOCATION = "classpath:mapper/account/*.xml";
 
     @Bean
-    @ConfigurationProperties(prefix = "spring.datasource.druid.account")
-    public DataSource accountDataSource() {
-        return DataSourceBuilder.create().type(com.alibaba.druid.pool.DruidDataSource.class).build();
+    @ConfigurationProperties(prefix = "spring.datasource")
+    public DruidDataSource accountDataSource() {
+        DruidDataSource druidDataSource = new DruidDataSource();
+        return druidDataSource;
     }
 
     @Bean
-    public DataSourceTransactionManager accountTransactionManager(@Qualifier("accountDataSource") DataSource dataSource) {
-        return new DataSourceTransactionManager(dataSource);
+    public DataSourceProxy accountDataSourceProxy(@Qualifier("accountDataSource") DruidDataSource druidDataSource) {
+        return new DataSourceProxy(druidDataSource);
     }
 
     @Bean
-    public SqlSessionFactory accountSqlSessionFactory(@Qualifier("accountDataSource") DataSource dataSource) throws Exception {
+    public DataSourceTransactionManager accountTransactionManager(@Qualifier("accountDataSourceProxy") DataSourceProxy dataSourceProxy) {
+        return new DataSourceTransactionManager(dataSourceProxy);
+    }
+
+    @Bean
+    public SqlSessionFactory accountSqlSessionFactory(@Qualifier("accountDataSourceProxy") DataSourceProxy dataSourceProxy) throws Exception {
         final SqlSessionFactoryBean sessionFactory = new SqlSessionFactoryBean();
-        sessionFactory.setDataSource(dataSource);
+        sessionFactory.setDataSource(dataSourceProxy);
 
 
         //更多详细配置见: https://pagehelper.github.io/docs/howtouse/

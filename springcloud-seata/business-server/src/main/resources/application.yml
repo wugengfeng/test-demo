@@ -1,6 +1,12 @@
 spring:
   application:
     name: business-server
+
+  # 分布式事务配置
+  cloud:
+    alibaba:
+      fescar:
+        tx-service-group: my_test_tx_group
 server:
   port: 8089
 

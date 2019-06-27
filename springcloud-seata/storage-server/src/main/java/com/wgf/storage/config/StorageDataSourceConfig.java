@@ -1,5 +1,7 @@
 package com.wgf.storage.config;
 
+import com.alibaba.druid.pool.DruidDataSource;
+import com.alibaba.fescar.rm.datasource.DataSourceProxy;
 import com.github.pagehelper.PageInterceptor;
 import com.wgf.mybatis.mapper.Mapper;
 import org.apache.ibatis.plugin.Interceptor;
@@ -9,7 +11,6 @@ import org.mybatis.spring.SqlSessionTemplate;
 import org.mybatis.spring.annotation.MapperScan;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.context.properties.ConfigurationProperties;
-import org.springframework.boot.jdbc.DataSourceBuilder;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
@@ -17,7 +18,6 @@ import org.springframework.jdbc.datasource.DataSourceTransactionManager;
 import tk.mybatis.mapper.entity.Config;
 import tk.mybatis.mapper.mapperhelper.MapperHelper;
 
-import javax.sql.DataSource;
 import java.util.Properties;
 
 /**
@@ -33,20 +33,27 @@ public class StorageDataSourceConfig {
     public static final String MAPPER_LOCATION = "classpath:mapper/storage/*.xml";
 
     @Bean
-    @ConfigurationProperties(prefix = "spring.datasource.druid.storage")
-    public DataSource storageDataSource() {
-        return DataSourceBuilder.create().type(com.alibaba.druid.pool.DruidDataSource.class).build();
+    @ConfigurationProperties(prefix = "spring.datasource")
+    public DruidDataSource storageDruidDataSource() {
+        DruidDataSource druidDataSource = new DruidDataSource();
+        return druidDataSource;
     }
 
     @Bean
-    public DataSourceTransactionManager storageTransactionManager(@Qualifier("storageDataSource") DataSource dataSource) {
-        return new DataSourceTransactionManager(dataSource);
+    public DataSourceProxy storageDataSource(@Qualifier("storageDruidDataSource") DruidDataSource druidDataSource) {
+        DataSourceProxy dataSourceProxy = new DataSourceProxy(druidDataSource);
+        return dataSourceProxy;
     }
 
     @Bean
-    public SqlSessionFactory storageSqlSessionFactory(@Qualifier("storageDataSource") DataSource dataSource) throws Exception {
+    public DataSourceTransactionManager storageTransactionManager(@Qualifier("storageDataSource") DataSourceProxy dataSourceProxy) {
+        return new DataSourceTransactionManager(dataSourceProxy);
+    }
+
+    @Bean
+    public SqlSessionFactory storageSqlSessionFactory(@Qualifier("storageDataSource") DataSourceProxy dataSourceProxy) throws Exception {
         final SqlSessionFactoryBean sessionFactory = new SqlSessionFactoryBean();
-        sessionFactory.setDataSource(dataSource);
+        sessionFactory.setDataSource(dataSourceProxy);
 
 
         //更多详细配置见: https://pagehelper.github.io/docs/howtouse/

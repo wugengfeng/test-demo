@@ -23,6 +23,6 @@ public interface AccountApi {
      * @return
      */
     @GetMapping("/debit")
-    Boolean debit(@RequestParam("userId") String userId, @RequestParam("money") BigDecimal money);
+    void debit(@RequestParam("userId") String userId, @RequestParam("money") BigDecimal money);
 
 }

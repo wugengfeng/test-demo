@@ -1,8 +1,11 @@
 package com.wgf.order.apiImpl;
 
 import com.wgf.order.api.OrderApi;
-import org.springframework.web.bind.annotation.RequestParam;
+import com.wgf.order.service.OrderTblService;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RestController;
+
+import java.math.BigDecimal;
 
 /**
  * @author: wgf
@@ -12,12 +15,11 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 public class OrderApiImpl implements OrderApi {
 
+    @Autowired
+    private OrderTblService orderTblService;
+
     @Override
-    public void create(@RequestParam("userId") String userId,
-                       @RequestParam("commodityCode") String commodityCode,
-                       @RequestParam("count") Integer count) {
-        System.out.println(userId);
-        System.out.println(commodityCode);
-        System.out.println(count);
+    public void create(String userId, String commodityCode, Integer count, BigDecimal totalPrice) {
+        this.orderTblService.create(userId, commodityCode, count, totalPrice);
     }
 }
