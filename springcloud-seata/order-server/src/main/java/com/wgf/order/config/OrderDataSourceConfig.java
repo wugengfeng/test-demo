@@ -1,9 +1,9 @@
 package com.wgf.order.config;
 
 import com.alibaba.druid.pool.DruidDataSource;
-import com.alibaba.fescar.rm.datasource.DataSourceProxy;
 import com.github.pagehelper.PageInterceptor;
 import com.wgf.mybatis.mapper.Mapper;
+import io.seata.rm.datasource.DataSourceProxy;
 import org.apache.ibatis.plugin.Interceptor;
 import org.apache.ibatis.session.SqlSessionFactory;
 import org.mybatis.spring.SqlSessionFactoryBean;
@@ -18,7 +18,6 @@ import org.springframework.jdbc.datasource.DataSourceTransactionManager;
 import tk.mybatis.mapper.entity.Config;
 import tk.mybatis.mapper.mapperhelper.MapperHelper;
 
-import javax.sql.DataSource;
 import java.util.Properties;
 
 /**

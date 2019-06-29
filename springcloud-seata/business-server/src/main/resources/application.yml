@@ -5,7 +5,7 @@ spring:
   # 分布式事务配置
   cloud:
     alibaba:
-      fescar:
+      seata:
         tx-service-group: my_test_tx_group
 server:
   port: 8089

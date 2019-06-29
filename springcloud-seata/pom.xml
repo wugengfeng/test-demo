@@ -28,8 +28,8 @@
         <commons-collections4.version>4.2</commons-collections4.version>
         <swagger2.version>2.7.0</swagger2.version>
         <druid.version>1.1.10</druid.version>
-        <alibaba-fescar.version>2.1.0.BUILD-SNAPSHOT</alibaba-fescar.version>
-        <fescar.version>0.4.1</fescar.version>
+        <alibaba-seata.version>0.9.1.BUILD-SNAPSHOT</alibaba-seata.version>
+        <seata.version>0.6.1</seata.version>
     </properties>
 
     <dependencyManagement>
@@ -62,20 +62,19 @@
 
             <dependency>
                 <groupId>org.springframework.cloud</groupId>
-                <artifactId>spring-cloud-alibaba-fescar</artifactId>
-                <version>${alibaba-fescar.version}</version>
+                <artifactId>spring-cloud-alibaba-seata</artifactId>
+                <version>${alibaba-seata.version}</version>
                 <exclusions>
                     <exclusion>
-                        <groupId>com.alibaba.fescar</groupId>
-                        <artifactId>fescar-spring</artifactId>
+                        <groupId>io.seata</groupId>
+                        <artifactId>seata-spring</artifactId>
                     </exclusion>
                 </exclusions>
             </dependency>
-
             <dependency>
-                <groupId>com.alibaba.fescar</groupId>
-                <artifactId>fescar-spring</artifactId>
-                <version>${fescar.version}</version>
+                <groupId>io.seata</groupId>
+                <artifactId>seata-all</artifactId>
+                <version>${seata.version}</version>
             </dependency>
 
 
@@ -143,6 +142,43 @@
 
         </dependencies>
     </dependencyManagement>
+
+
+    <repositories>
+        <repository>
+            <id>spring-snapshot</id>
+            <name>Spring Snapshot Repository</name>
+            <url>https://repo.spring.io/snapshot</url>
+            <snapshots>
+                <enabled>true</enabled>
+            </snapshots>
+        </repository>
+        <repository>
+            <id>mvnrepository</id>
+            <name>mvnrepository</name>
+            <url>http://www.mvnrepository.com/</url>
+            <layout>default</layout>
+            <releases>
+                <enabled>true</enabled>
+            </releases>
+            <snapshots>
+                <enabled>true</enabled>
+            </snapshots>
+        </repository>
+        <repository>
+            <id>sonatype</id>
+            <name>sonatype</name>
+            <url>http://oss.sonatype.org/</url>
+            <layout>default</layout>
+            <releases>
+                <enabled>true</enabled>
+            </releases>
+            <snapshots>
+                <enabled>true</enabled>
+            </snapshots>
+        </repository>
+    </repositories>
+
 
     <modules>
         <module>eureka-server</module>

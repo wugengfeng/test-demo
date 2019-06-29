@@ -1,9 +1,9 @@
 package com.wgf.storage.config;
 
 import com.alibaba.druid.pool.DruidDataSource;
-import com.alibaba.fescar.rm.datasource.DataSourceProxy;
 import com.github.pagehelper.PageInterceptor;
 import com.wgf.mybatis.mapper.Mapper;
+import io.seata.rm.datasource.DataSourceProxy;
 import org.apache.ibatis.plugin.Interceptor;
 import org.apache.ibatis.session.SqlSessionFactory;
 import org.mybatis.spring.SqlSessionFactoryBean;

@@ -1,9 +1,9 @@
 package com.wgf.manager;
 
-import com.alibaba.fescar.spring.annotation.GlobalTransactional;
 import com.wgf.account.api.AccountApi;
 import com.wgf.order.api.OrderApi;
 import com.wgf.storage.api.StorageApi;
+import io.seata.spring.annotation.GlobalTransactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
