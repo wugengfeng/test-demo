@@ -1,0 +1,5 @@
+server:
+  port: 8086
+
+chromedriverPath: C:\Program Files (x86)\Google\Chrome\Application\chromedriver.exe
+savePath: E:\code

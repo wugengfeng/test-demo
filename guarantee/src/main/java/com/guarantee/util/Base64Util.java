@@ -8,13 +8,13 @@ import java.io.OutputStream;
 import java.util.UUID;
 
 public class Base64Util {
-    public static String base64ChangeImage(String baseStr) {
+    public static String base64ChangeImage(String baseStr, String savePath) {
         if (baseStr == null) {
             return null;
         }
 
         OutputStream out = null;
-        String filePath = "E:\\code\\" + UUID.randomUUID().toString() + ".jpg";
+        String filePath = savePath + UUID.randomUUID().toString() + ".jpg";
         BASE64Decoder decoder = new BASE64Decoder();
         try {
             // 解密
