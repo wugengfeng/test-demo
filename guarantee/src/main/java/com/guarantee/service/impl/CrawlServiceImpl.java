@@ -1,10 +1,7 @@
 package com.guarantee.service.impl;
 
-import com.alibaba.fastjson.JSON;
-import com.guarantee.entity.Result;
 import com.guarantee.service.CrawlService;
-import com.guarantee.util.Base64Util;
-import com.guarantee.util.ShowApiRequest;
+import com.guarantee.util.DistinguishUtil;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
@@ -15,7 +12,6 @@ import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
-import org.springframework.util.StringUtils;
 
 import java.io.File;
 import java.util.HashMap;
@@ -36,7 +32,7 @@ public class CrawlServiceImpl implements CrawlService {
     private String savePath;
 
     @Override
-    public Map<String, Object> crawl(String no) {
+    public Map<String, Object> crawl(String sno) {
         // "/opt/google/chrome/chromedriver"
         System.setProperty("webdriver.chrome.driver", chromedriverPath);
         ChromeOptions options = new ChromeOptions();
@@ -57,38 +53,22 @@ public class CrawlServiceImpl implements CrawlService {
             service.start();
             webDriver.get("https://checkcoverage.apple.com/tw/zh/?sn=");
 
-            String title = webDriver.getTitle();
-            resultMap.put("title", title);
+            WebElement productNameElement;
+            int num = 0;
+            do {
+                this.submit(webDriver, sno, num);
+                num++;
 
-            WebElement submit = new WebDriverWait(webDriver, 10).until(ExpectedConditions.presenceOfElementLocated(By.cssSelector("#view-selector-3 > button")));
-            WebElement sno = webDriver.findElement(By.id("serial-number"));
-            WebElement ans = webDriver.findElement(By.id("captcha-input"));
-            WebElement base64 = webDriver.findElement(By.cssSelector("#view-selector-4 > section > div.desktop-captcha-section.hide-small > div.captcha-image-section > div > img"));
-            String base64Str = base64.getAttribute("src").replace("data:image/jpeg;base64,", "");
-            sno.sendKeys(no);
+                // 查找保修元素
+                productNameElement = new WebDriverWait(webDriver, 10).until(ExpectedConditions.presenceOfElementLocated(By.cssSelector("#product > div > div > div > p.product-info-name")));
+            } while (Objects.nonNull(productNameElement) && num < 3);
 
-            String filePath = Base64Util.base64ChangeImage(base64Str, savePath);
 
-            if (filePath == null) {
-                throw new RuntimeException("获取不到验证码图片");
-            }
+            if (Objects.isNull(productNameElement)) {
 
-            String ansStr = getAnsStr(base64Str);
-            if (StringUtils.isEmpty(ansStr)) {
-                webDriver.quit();
-                return null;
-            }
-
-            ans.sendKeys(ansStr);
-            submit.submit();
-
-            // 查找保修元素
-            WebElement guarantee = new WebDriverWait(webDriver, 10).until(ExpectedConditions.presenceOfElementLocated(By.cssSelector("#hardware > div.result-info > h3")));
-
-            if (Objects.nonNull(guarantee)) {
-
+            } else {
                 // 产品名称
-                String productName = webDriver.findElement(By.cssSelector("#product > div > div > div > p.product-info-name")).getText();
+                String productName = productNameElement.getText();
                 resultMap.put("productName", productName);
 
                 // 有效购买日期
@@ -104,6 +84,7 @@ public class CrawlServiceImpl implements CrawlService {
                 resultMap.put("info3", info3);
             }
 
+
         } catch (Exception e) {
             e.printStackTrace();
         } finally {
@@ -114,17 +95,30 @@ public class CrawlServiceImpl implements CrawlService {
         return resultMap;
     }
 
+    /**
+     * 提交表单
+     */
+    public void submit(WebDriver webDriver, String sno, int num) {
 
-    public static String getAnsStr(String base64) {
-        String res = new ShowApiRequest("http://route.showapi.com/184-5", "99778", "59b8da084ac9423eae82f206568d6d19")
-                .addTextPara("img_base64", base64)
-                .addTextPara("typeId", "30")
-                .addTextPara("convert_to_jpg", "0")
-                .addTextPara("needMorePrecise", "0")
-                .post();
+        // 提交按钮
+        WebElement submitElement = new WebDriverWait(webDriver, 10).until(ExpectedConditions.presenceOfElementLocated(By.cssSelector("#view-selector-3 > button")));
+        // 序列号
+        WebElement snoElement = webDriver.findElement(By.id("serial-number"));
+        // 验证码
+        WebElement ansElement = webDriver.findElement(By.id("captcha-input"));
+        // 图片
+        WebElement base64Element = webDriver.findElement(By.cssSelector("#view-selector-4 > section > div.desktop-captcha-section.hide-small > div.captcha-image-section > div > img"));
 
-        Result result = JSON.parseObject(res, Result.class);
-        return result.getShowapi_res_body().getResult();
+        String ansStr = base64Element.getAttribute("src").replace("data:image/jpeg;base64,", "");
+        if (num == 0) {
+            // 调用自己验证
+            ansStr = DistinguishUtil.getAuthCode(ansStr);
+        } else {
+            // todo 调用收费验证
+        }
+
+        snoElement.sendKeys(sno);
+        ansElement.sendKeys(ansStr);
+        submitElement.submit();
     }
-
 }
