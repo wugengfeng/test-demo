@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.guarantee.mapper.ProxyMapper">
+  <resultMap id="BaseResultMap" type="com.guarantee.entity.Proxy">
+    <!--
+      WARNING - @mbg.generated
+    -->
+    <id column="id" jdbcType="INTEGER" property="id" />
+    <result column="proxyip" jdbcType="VARCHAR" property="proxyip" />
+    <result column="status" jdbcType="INTEGER" property="status" />
+    <result column="lasttime" jdbcType="INTEGER" property="lasttime" />
+  </resultMap>
+
+  <select id="getProxy" resultMap="BaseResultMap">
+    select *
+    from proxy
+    where status = #{status}
+    order by lasttime asc
+    limit 1
+  </select>
+</mapper>
