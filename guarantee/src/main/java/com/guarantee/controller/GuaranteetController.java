@@ -1,6 +1,6 @@
 package com.guarantee.controller;
 
-import com.guarantee.service.CrawlService;
+import com.guarantee.service.GuaranteeService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
@@ -18,18 +18,18 @@ import java.util.Map;
  * @description:
  **/
 @RestController
-@RequestMapping("/test")
+@RequestMapping("/guarantee")
 @Api(description = "保修控制器")
-public class TestController {
+public class GuaranteetController {
 
     @Autowired
-    private CrawlService crawlService;
+    private GuaranteeService crawlService;
 
     @ApiOperation(value = "获取保修信息")
     @ApiImplicitParams({
             @ApiImplicitParam(paramType = "query", dataType = "string", name = "no", value = "序列号", required = true)
     })
-    @GetMapping("/crawl")
+    @GetMapping("/info")
     public Map<String, Object> crawl(String no) {
         return this.crawlService.crawl(no);
     }

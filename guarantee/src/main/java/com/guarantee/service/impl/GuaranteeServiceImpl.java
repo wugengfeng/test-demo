@@ -1,6 +1,9 @@
 package com.guarantee.service.impl;
 
-import com.guarantee.service.CrawlService;
+import com.guarantee.agent.UserAgent;
+import com.guarantee.entity.Proxy;
+import com.guarantee.service.GuaranteeService;
+import com.guarantee.service.ProxyService;
 import com.guarantee.util.DistinguishUtil;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
@@ -10,6 +13,7 @@ import org.openqa.selenium.chrome.ChromeDriverService;
 import org.openqa.selenium.chrome.ChromeOptions;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
@@ -23,24 +27,33 @@ import java.util.Objects;
  * @description:
  **/
 @Service
-public class CrawlServiceImpl implements CrawlService {
+public class GuaranteeServiceImpl implements GuaranteeService {
+
+    @Autowired
+    private UserAgent defaultUserAgent;
+
+    @Autowired
+    private ProxyService proxyService;
 
     @Value("${chromedriverPath}")
     private String chromedriverPath;
 
-    @Value("${savePath}")
-    private String savePath;
-
     @Override
     public Map<String, Object> crawl(String sno) {
-        // "/opt/google/chrome/chromedriver"
+        String userAgent = defaultUserAgent.getUserAgent();
+
         System.setProperty("webdriver.chrome.driver", chromedriverPath);
         ChromeOptions options = new ChromeOptions();
         //设置为 headless 模式 （必须）
         options.addArguments("--headless");
         options.addArguments("--no-sandbox");
         options.addArguments("--disable-gpu");
-        options.addArguments("--user-agent=Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/73.0.3683.86 Safari/537.36");
+        options.addArguments(String.format("--user-agent=%s", userAgent));
+
+        Proxy proxy = this.proxyService.getProxy();
+        if (Objects.nonNull(proxy)) {
+            options.addArguments(String.format("--proxy-server=http://%s", proxy.getProxyip()));
+        }
 
         WebDriver webDriver = new ChromeDriver(options);
         ChromeDriverService service = new ChromeDriverService.Builder()
@@ -86,8 +99,10 @@ public class CrawlServiceImpl implements CrawlService {
 
 
         } catch (Exception e) {
+            this.proxyService.deprecated(proxy.getId());
             e.printStackTrace();
         } finally {
+            this.proxyService.freedProxy(proxy.getId());
             webDriver.quit();
             service.stop();
         }

@@ -7,7 +7,7 @@ import java.util.Map;
  * @create: 2019-07-15 18:27
  * @description:
  **/
-public interface CrawlService {
+public interface GuaranteeService {
 
     Map<String, Object> crawl(String no);
 

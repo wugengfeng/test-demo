@@ -1,5 +1,23 @@
 server:
-  port: 8086
+  port: 9023
 
 chromedriverPath: C:\Program Files (x86)\Google\Chrome\Application\chromedriver.exe
-savePath: E:\code
+
+spring:
+  datasource:
+    base:
+      #driver-class-name: com.mysql.jdbc.Driver
+      #jdbc-url: jdbc:mysql://47.106.207.16:3306/guarantee?useUnicode=true&characterEncoding=utf8&useSSL=true&allowMultiQueries=true&autoReconnect=true
+      driver-class-name: com.mysql.cj.jdbc.Driver
+      jdbc-url: jdbc:mysql://47.106.207.16:3306/guarantee?useUnicode=true&characterEncoding=UTF-8
+      username: root
+      password: wgf123
+
+      max-idle: 20
+      min-idle: 20
+      initial-size: 20
+      max-wait: 10000
+      validation-query: SELECT 1 FROM DUAL
+      test-on-borrow: false
+      test-while-idle: true
+      time-between-eviction-runs-millis: 18800

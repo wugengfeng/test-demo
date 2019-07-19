@@ -27,7 +27,7 @@ public class AutoTest {
     }
 
     public static String getAnsStr(String base64) {
-        String res = new ShowApiRequest("http://route.showapi.com/184-5", "99778", "59b8da084ac9423eae82f206568d6d19")
+        String res = new ShowApiRequest("http://route.showapi.com/184-5", "", "")
                 .addTextPara("img_base64", base64)
                 .addTextPara("typeId", "30")
                 .addTextPara("convert_to_jpg", "0")
