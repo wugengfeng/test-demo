@@ -35,13 +35,13 @@ public class ProxyServiceImpl implements ProxyService {
     }
 
     @Override
-    public void freedProxy(Integer id) {
-        if (Objects.isNull(id)) {
+    public void freedProxy(Proxy proxy) {
+        if (Objects.isNull(proxy) || Objects.isNull(proxy.getId())) {
             return;
         }
 
         Proxy update = new Proxy();
-        update.setId(id);
+        update.setId(proxy.getId());
         update.setStatus(0);
         long time = System.currentTimeMillis() / 1000;
         update.setLasttime((int) time);
@@ -49,13 +49,13 @@ public class ProxyServiceImpl implements ProxyService {
     }
 
     @Override
-    public void deprecated(Integer id) {
-        if (Objects.isNull(id)) {
+    public void deprecated(Proxy proxy) {
+        if (Objects.isNull(proxy) || Objects.isNull(proxy.getId())) {
             return;
         }
 
         Proxy update = new Proxy();
-        update.setId(id);
+        update.setId(proxy.getId());
         update.setStatus(2);
         this.proxyMapper.updateByPrimaryKeySelective(update);
     }

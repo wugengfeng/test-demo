@@ -1,6 +1,9 @@
 package com.guarantee.service;
 
-import java.util.Map;
+import com.guarantee.entity.Guarantee;
+
+import java.io.IOException;
+import java.net.URISyntaxException;
 
 /**
  * @author: wgf
@@ -9,6 +12,6 @@ import java.util.Map;
  **/
 public interface GuaranteeService {
 
-    Map<String, Object> crawl(String no);
+    Guarantee selectBySno(String sno) throws InterruptedException, IOException, URISyntaxException;
 
 }

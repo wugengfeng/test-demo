@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.guarantee.mapper.GuaranteeMapper">
+  <resultMap id="BaseResultMap" type="com.guarantee.entity.Guarantee">
+    <!--
+      WARNING - @mbg.generated
+    -->
+    <id column="id" jdbcType="INTEGER" property="id" />
+    <result column="sno" jdbcType="VARCHAR" property="sno" />
+    <result column="iphone_info" jdbcType="VARCHAR" property="iphoneInfo" />
+    <result column="activation_state" jdbcType="VARCHAR" property="activationState" />
+    <result column="activation_date" jdbcType="DATE" property="activationDate" />
+    <result column="support_info" jdbcType="VARCHAR" property="supportInfo" />
+    <result column="support_date" jdbcType="DATE" property="supportDate" />
+    <result column="is_guarantee" jdbcType="VARCHAR" property="isGuarantee" />
+    <result column="guarantee_date" jdbcType="DATE" property="guaranteeDate" />
+    <result column="delay" jdbcType="VARCHAR" property="delay" />
+    <result column="change_phone" jdbcType="VARCHAR" property="changePhone" />
+    <result column="lend" jdbcType="VARCHAR" property="lend" />
+    <result column="create_date" jdbcType="TIMESTAMP" property="createDate" />
+  </resultMap>
+
+  <select id="selectBySno" resultMap="BaseResultMap">
+    select *
+    from guarantee
+    where sno = #{sno}
+    order by create_date desc
+    limit 1
+  </select>
+</mapper>

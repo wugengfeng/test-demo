@@ -1,6 +1,6 @@
 package com.guarantee.dll;
 
-import com.guarantee.util.FileUtil;
+import com.guarantee.constant.Constant;
 import com.sun.jna.Library;
 import com.sun.jna.Native;
 
@@ -9,7 +9,7 @@ import com.sun.jna.Native;
  */
 public interface DistinguishDll extends Library {
     DistinguishDll instanceDll = (DistinguishDll)
-            Native.loadLibrary(FileUtil.getFilePath(FileUtil.FileName.DaYangDistinguish), DistinguishDll.class);
+            Native.loadLibrary(Constant.daYangDistinguishPath, DistinguishDll.class);
 
     String DaYangDistinguish(String str);
 }

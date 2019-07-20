@@ -18,11 +18,11 @@ public interface ProxyService {
     /**
      * 释放ip
      */
-    void freedProxy(Integer id);
+    void freedProxy(Proxy proxy);
 
     /**
      * 废弃ip
      * @param id
      */
-    void deprecated(Integer id);
+    void deprecated(Proxy proxy);
 }

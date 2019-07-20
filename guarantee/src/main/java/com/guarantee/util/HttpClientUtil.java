@@ -12,11 +12,14 @@ import org.apache.http.client.methods.HttpPost;
 import org.apache.http.client.utils.URIBuilder;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.HttpClientBuilder;
+import org.apache.http.message.BasicNameValuePair;
 import org.apache.http.util.EntityUtils;
 
 import java.io.IOException;
 import java.net.URISyntaxException;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 /**
  * @author: wgf
@@ -26,8 +29,16 @@ import java.util.List;
 // 发送GET请求
 public class HttpClientUtil {
     // 发送GET请求
-    public static String getRequest(String path, List<NameValuePair> parametersBody) throws URISyntaxException {
+    public static String getRequest(String path, Map<String, String> param) throws URISyntaxException {
         URIBuilder uriBuilder = new URIBuilder(path);
+        List<NameValuePair> parametersBody = new ArrayList();
+
+        if (param != null) {
+            param.forEach((k, v) -> {
+                parametersBody.add(new BasicNameValuePair(k, v));
+            });
+        }
+
         uriBuilder.setParameters(parametersBody);
         HttpGet get = new HttpGet(uriBuilder.build());
         HttpClient client = HttpClientBuilder.create().build();

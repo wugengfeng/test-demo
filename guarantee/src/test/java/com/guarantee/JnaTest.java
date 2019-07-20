@@ -1,8 +1,8 @@
 package com.guarantee;
 
+import com.guarantee.constant.Constant;
 import com.sun.jna.Library;
 import com.sun.jna.Native;
-import com.sun.jna.Platform;
 
 /**
  * @author: wgf
@@ -19,7 +19,7 @@ public class JnaTest {
 
     public interface JNATestDll extends Library {
         JNATestDll instanceDll = (JNATestDll)
-                Native.loadLibrary("D:\\DaYangDistinguish", JNATestDll.class);
+                Native.loadLibrary(Constant.daYangDistinguishPath, JNATestDll.class);
 
         String DaYangDistinguish(String str);
     }
