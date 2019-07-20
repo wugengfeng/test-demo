@@ -26,6 +26,8 @@ public class Constant {
      */
     public static Boolean enableProxy;
 
+    public static String codeUrl;
+
     @Value("${daYangDistinguishPath}")
     public void setDaYangDistinguishPath(String daYangDistinguishPath) {
         Constant.daYangDistinguishPath = daYangDistinguishPath;
@@ -44,5 +46,10 @@ public class Constant {
     @Value("${enableProxy}")
     public void setEnableProxy(Boolean enableProxy) {
         this.enableProxy = enableProxy;
+    }
+
+    @Value("${codeUrl}")
+    public void setCodeUrl(String codeUrl) {
+        Constant.codeUrl = codeUrl;
     }
 }

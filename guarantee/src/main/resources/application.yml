@@ -19,11 +19,12 @@ spring:
       time-between-eviction-runs-millis: 18800
 
 server:
-  port: 9023
+  port: 8023
 chromedriverPath: D:\crawl\chromedriver.exe
 daYangDistinguishPath: D:\crawl\DaYangDistinguish.dll
 cacheDir: D:\crawl\cache\
 enableProxy: false
+codeUrl: http://m515535.6655.la/code/get_code
 ---
 
 spring:
@@ -47,8 +48,9 @@ spring:
       time-between-eviction-runs-millis: 18800
 
 server:
-  port: 9023
+  port: 8023
 chromedriverPath: /java/chromedriver
 daYangDistinguishPath: /java/DaYangDistinguish.dll
 cacheDir: /java/cache
 enableProxy: false
+codeUrl: http://m515535.6655.la/code/get_code

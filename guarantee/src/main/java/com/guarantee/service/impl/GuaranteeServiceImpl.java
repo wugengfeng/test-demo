@@ -1,5 +1,6 @@
 package com.guarantee.service.impl;
 
+import com.alibaba.fastjson.JSON;
 import com.guarantee.agent.UserAgent;
 import com.guarantee.constant.Constant;
 import com.guarantee.entity.Guarantee;
@@ -10,7 +11,9 @@ import com.guarantee.service.ProxyService;
 import com.guarantee.util.CaptchaUtil;
 import com.guarantee.util.DistinguishUtil;
 import com.guarantee.util.ElementUtil;
+import com.guarantee.util.HttpClientUtil;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.ibatis.annotations.Param;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.openqa.selenium.By;
@@ -30,6 +33,8 @@ import java.net.URISyntaxException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Objects;
 
 /**
@@ -238,7 +243,9 @@ public class GuaranteeServiceImpl implements GuaranteeService {
         if (num < 3) {
             // 调用自己验证
             this.logger.info("调用dll验证");
-            ansStr = DistinguishUtil.getAuthCode(ansStr);
+            Map<String, String> param = new HashMap<>();
+            param.put("base64", ansStr);
+            ansStr = HttpClientUtil.postJSON(Constant.codeUrl, JSON.toJSONString(param));
         } else {
             this.logger.info("调用接口验证");
             ansStr = CaptchaUtil.getAuthCode(ansStr);
