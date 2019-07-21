@@ -85,9 +85,9 @@ public class GuaranteeServiceImpl implements GuaranteeService {
 
         //设置为 headless 模式 （必须）
         options.addArguments(String.format("--disk-cache-dir=%s", Constant.cacheDir));
-        /*options.addArguments("--headless");
+        options.addArguments("--headless");
         options.addArguments("--no-sandbox");
-        options.addArguments("--disable-gpu");*/
+        options.addArguments("--disable-gpu");
         options.addArguments(String.format("--user-agent=%s", userAgent));
 
         Proxy proxy = null;
