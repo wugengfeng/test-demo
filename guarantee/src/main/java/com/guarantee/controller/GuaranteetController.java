@@ -14,6 +14,8 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.io.IOException;
 import java.net.URISyntaxException;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.Objects;
 
 /**
@@ -27,6 +29,7 @@ import java.util.Objects;
 public class GuaranteetController {
 
     private static String TEMPALTE = "%s：%s<br>";
+    private static String TIME_TEMPALTE = "%s：%s到期<br>";
 
     @Autowired
     private GuaranteeService guaranteeService;
@@ -41,23 +44,35 @@ public class GuaranteetController {
 
         StringBuilder result = new StringBuilder();
 
+        Date date = new Date();
         if (Objects.isNull(guarantee)) {
             result.append("获取保修信息失败，请稍后再试");
         } else {
             result.append(String.format(TEMPALTE, "序 列 号", guarantee.getSno()));
             result.append(String.format(TEMPALTE, "设备型号", guarantee.getIphoneInfo()));
             result.append(String.format(TEMPALTE, "激活状态", guarantee.getActivationState()));
-            if (Objects.nonNull(guarantee.getActivationDate())) {
-                result.append(String.format(TEMPALTE, "激活时间", DateUtil.formatYMD(guarantee.getActivationDate())));
-            }
-            result.append(String.format(TEMPALTE, "电话支持", guarantee.getSupportInfo()));
+
             if (Objects.nonNull(guarantee.getSupportDate())) {
-                result.append(String.format(TEMPALTE, "电话剩余",  DateUtil.formatYMD(guarantee.getSupportDate())));
+                if (date.before(guarantee.getSupportDate())) {
+                    result.append(String.format(TIME_TEMPALTE, "电话支持", DateUtil.formatYMD(guarantee.getSupportDate())));
+                }
+            } else {
+                result.append(String.format(TEMPALTE, "电话支持", "已过期"));
             }
-            result.append(String.format(TEMPALTE, "保修支持", guarantee.getIsGuarantee()));
-            if (Objects.nonNull(guarantee.getSupportDate())) {
-                result.append(String.format(TEMPALTE, "保修剩余",  DateUtil.formatYMD(guarantee.getSupportDate())));
+
+            //在保修期内的、激活时间=保修时间少一年、天数加一天
+            if (Objects.nonNull(guarantee.getGuaranteeDate())) {
+                if (date.before(guarantee.getGuaranteeDate())) {
+                    result.append(String.format(TIME_TEMPALTE, "保修支持", DateUtil.formatYMD(guarantee.getGuaranteeDate())));
+                    Date activeDate = DateUtil.calculateDate(guarantee.getSupportDate(), -1, Calendar.YEAR);
+                    activeDate = DateUtil.calculateDate(activeDate, 1, Calendar.DAY_OF_YEAR);
+                    result.append(String.format(TIME_TEMPALTE, "激活时间", DateUtil.formatYMD(activeDate)));
+                }
+            } else {
+                result.append(String.format(TEMPALTE, "保修支持", guarantee.getIsGuarantee()));
+                result.append(String.format(TEMPALTE, "激活时间", ""));
             }
+
             result.append(String.format(TEMPALTE, "是否延保", guarantee.getDelay()));
             result.append(String.format(TEMPALTE, "是否官换机", guarantee.getChangePhone()));
             result.append(String.format(TEMPALTE, "是否借出设备", guarantee.getLend()));

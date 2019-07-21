@@ -3,17 +3,19 @@ package com.guarantee.service.impl;
 import com.alibaba.fastjson.JSON;
 import com.guarantee.agent.UserAgent;
 import com.guarantee.constant.Constant;
+import com.guarantee.entity.Config;
 import com.guarantee.entity.Guarantee;
 import com.guarantee.entity.Proxy;
+import com.guarantee.entity.json.ResponseJson;
+import com.guarantee.exception.CrawlException;
+import com.guarantee.mapper.ConfigMapper;
 import com.guarantee.mapper.GuaranteeMapper;
 import com.guarantee.service.GuaranteeService;
 import com.guarantee.service.ProxyService;
 import com.guarantee.util.CaptchaUtil;
-import com.guarantee.util.DistinguishUtil;
 import com.guarantee.util.ElementUtil;
 import com.guarantee.util.HttpClientUtil;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.ibatis.annotations.Param;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.openqa.selenium.By;
@@ -26,16 +28,15 @@ import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.util.CollectionUtils;
 
+import javax.lang.model.element.Element;
 import java.io.File;
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
 
 /**
  * @create: 2019-07-15 18:28
@@ -55,10 +56,14 @@ public class GuaranteeServiceImpl implements GuaranteeService {
     @Autowired
     private ProxyService proxyService;
 
+    @Autowired
+    private ConfigMapper configMapper;
+
     @Override
     public Guarantee selectBySno(String sno) throws InterruptedException, IOException, URISyntaxException {
-        if (StringUtils.isBlank(sno)) {
-            throw new RuntimeException("序列号错误");
+        List<Integer> lenList = Arrays.asList(11, 12, 15);
+        if (StringUtils.isBlank(sno) || !lenList.contains(sno.length()) ) {
+            throw new CrawlException("错误的序列号");
         }
 
         Guarantee guarantee = this.guaranteeMapper.selectBySno(sno);
@@ -80,9 +85,9 @@ public class GuaranteeServiceImpl implements GuaranteeService {
 
         //设置为 headless 模式 （必须）
         options.addArguments(String.format("--disk-cache-dir=%s", Constant.cacheDir));
-        options.addArguments("--headless");
+        /*options.addArguments("--headless");
         options.addArguments("--no-sandbox");
-        options.addArguments("--disable-gpu");
+        options.addArguments("--disable-gpu");*/
         options.addArguments(String.format("--user-agent=%s", userAgent));
 
         Proxy proxy = null;
@@ -114,8 +119,27 @@ public class GuaranteeServiceImpl implements GuaranteeService {
                 try {
                     productNameElement = new WebDriverWait(webDriver, 2).until(ExpectedConditions.presenceOfElementLocated(By.cssSelector("#product > div > div > div > p.product-info-name")));
                 } catch (Exception e) {
-                    e.printStackTrace();
+                    logger.error(e);
                     // 异常继续执行
+
+                    String errMsg = ElementUtil.getValByCss(webDriver, "#error-wrapper-5 > div > span", WebElement::getText);
+                    if (StringUtils.isNotBlank(errMsg)) {
+                        if (errMsg.contains("更换产品")) {
+                            throw new CrawlException("已更换产品");
+                        }
+
+                        if (errMsg.contains("序列号无效")) {
+                            throw new CrawlException("请输入有效的序列号");
+                        }
+
+                        if (errMsg.contains("很抱歉，我们现在无法完成您的请求")) {
+                            throw new CrawlException(String.format("序 列 号：%s<br>激活状态:暂时无法查询", sno));
+                        }
+
+                        if (num == 3 && errMsg.contains("您输入的代码与图片不符")) {
+                            logger.error("验证码识别错误");
+                        }
+                    }
                 }
 
             } while (Objects.isNull(productNameElement) && num < 4);
@@ -126,23 +150,72 @@ public class GuaranteeServiceImpl implements GuaranteeService {
             }
 
             logger.info(String.format("获取保修数据使用时间 ----- %s", (System.currentTimeMillis() - begin) / 1000.0));
+            String html = webDriver.getPageSource();
+
+            // 返回的json
+            ResponseJson responseJson = null;
+            String startTemp = "responseJson";
+            String endTemp = "Classify(\"cs.services/GlobalObject\").set(\"responseJson.productInfo.LINK_";
+            int jsonStart = html.indexOf(startTemp) + startTemp.length() + 2;
+            int jsonEnd = html.indexOf(endTemp);
+            String responseJsonStr = html.substring(jsonStart, jsonEnd).replace(");", "");
+            responseJson = JSON.parseObject(responseJsonStr, ResponseJson.class);
+            List<String> coverageList = Arrays.asList(responseJson.getCOVERAGE_STATUS().split(","));
+            Map<String, String> coverageMap = new HashMap<>();
+            for (String str : coverageList) {
+                String[] arr = str.split("=");
+                coverageMap.put(arr[0], arr[1]);
+            }
+
+            if ("N".equals(responseJson.getIS_REGISTERED())) {
+                throw new CrawlException("设备未激活");
+            }
+
+            // 判断有效购买时间 IS_REGISTERED
+            /*String shoppingTimeStr = ElementUtil.getValByCss(webDriver, "#registration > div.result-info > h3", WebElement::getText);
+            if (StringUtils.isNotBlank(shoppingTimeStr)) {
+                guarantee.setActivationState("已激活");
+            } else if (html.contains("请激活您的")) {
+                guarantee.setActivationState("未激活");
+            }
+            else {
+                guarantee.setActivationState("未激活");
+            }*/
+            if ("N".equals(responseJson.getIS_REGISTERED())) {
+                guarantee.setActivationState("未激活");
+            } else {
+                guarantee.setActivationState("已激活");
+            }
+
             // 设备型号
             String productName = productNameElement.getText();
+            // 配置编码
+            WebElement configCodeElement = webDriver.findElement(By.cssSelector("#product > div > div > div > img"));
+            String configCode = null;
+            if (Objects.nonNull(configCodeElement)) {
+                configCode = configCodeElement.getAttribute("src");
+                String match = "configcode=";
+                int start = configCode.indexOf(match) + match.length();
+                int end = start + 4;
+                configCode = configCode.substring(start, end);
+                Config config = this.configMapper.seleteByConfig(configCode);
+                if (Objects.nonNull(config))
+                    productName = config.getMode();
+            }
             guarantee.setIphoneInfo(productName);
 
             // 序列号
             guarantee.setSno(sno);
 
-            guarantee.setActivationState("已激活");
-
             // 电话技术支持
-            String supportInfo = ElementUtil.getVal(webDriver.findElement(By.cssSelector("#iphone > div.result-info > h3")), WebElement::getText);
-            if (StringUtils.isNotBlank(supportInfo)) {
-                guarantee.setSupportInfo(supportInfo.replace("电话技术支持：", ""));
+            if (coverageMap.get("phone").contains("y")) {
+                guarantee.setSupportInfo("有效");
+            } else {
+                guarantee.setSupportInfo("已过期");
             }
 
             // 电话技术支持日期
-            String supportDate = ElementUtil.getVal(webDriver.findElement(By.cssSelector("#iphone > div.result-info > p")), WebElement::getText);
+            String supportDate = ElementUtil.getValByCss(webDriver, "#iphone > div.result-info > p", WebElement::getText);
             if (StringUtils.isNotBlank(supportDate)) {
                 String match = "预计到期日：";
                 if (supportDate.contains(match)) {
@@ -158,20 +231,23 @@ public class GuaranteeServiceImpl implements GuaranteeService {
             }
 
             // 保修支持
-            String guaranteeInfo = ElementUtil.getVal(webDriver.findElement(By.cssSelector("#hardware > div.result-info > h3")), WebElement::getText);
-            if (StringUtils.isNotBlank(guaranteeInfo)) {
-                guarantee.setIsGuarantee(guaranteeInfo.replace("维修和服务保障情况：", ""));
+            String hwcov = coverageMap.get("hwcov");
+            // 格式 hwcov=y-LI
+            if (hwcov.contains("y")) {
+                guarantee.setIsGuarantee("在保");
+            } else {
+                guarantee.setIsGuarantee("过保");
+            }
 
-                // 延保
-                if ("有效".equals(guarantee.getIsGuarantee())) {
-                    guarantee.setDelay("延保");
-                } else {
-                    guarantee.setDelay("无");
-                }
+            // 是否延保
+            if (hwcov.contains("PE") || hwcov.contains("PD") || hwcov.contains("PP") || html.contains("根据 AppleCare 产品的规定")) {
+                guarantee.setDelay("延保");
+            } else {
+                guarantee.setDelay("无");
             }
 
             // 保修剩余
-            String guaranteeDate = ElementUtil.getVal(webDriver.findElement(By.cssSelector("#hardware > div.result-info > p")), WebElement::getText);
+            String guaranteeDate = ElementUtil.getValByCss(webDriver, "#hardware > div.result-info > p", WebElement::getText);
             if (StringUtils.isNotBlank(guaranteeDate)) {
 
                 String match = "预计到期日：";
@@ -188,7 +264,6 @@ public class GuaranteeServiceImpl implements GuaranteeService {
             }
 
             // 是否官换机
-            String html = webDriver.getPageSource();
             if (html.contains("我们的记录显示，您的产品存在相关的服务历史记录")) {
                 guarantee.setChangePhone("是");
             } else {
@@ -196,18 +271,15 @@ public class GuaranteeServiceImpl implements GuaranteeService {
             }
 
             // 是否借出设备
-            String jsonMatch = "IS_LOANER";
-            guarantee.setLend("否");
-            if (html.contains(jsonMatch)) {
-                int start = html.indexOf(jsonMatch) + jsonMatch.length() + 3;
-                int end = start + 1;
+            if ("N".equals(responseJson.getIS_LOANER())) {
+                guarantee.setLend("否");
+            } else {
+                guarantee.setLend("是");
+            }
 
-                if (start > 0) {
-                    String flag = html.substring(start, end);
-                    if (!"N".equals(flag)) {
-                        guarantee.setLend("是");
-                    }
-                }
+
+            if ("在保".equals(guarantee.getIsGuarantee()) && Objects.isNull(guarantee.getGuaranteeDate())) {
+                return guarantee;
             }
             guarantee.setCreateDate(new Date());
             this.guaranteeMapper.insertSelective(guarantee);
