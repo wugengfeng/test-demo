@@ -12,6 +12,6 @@ import java.net.URISyntaxException;
  **/
 public interface GuaranteeService {
 
-    Guarantee selectBySno(String sno) throws InterruptedException, IOException, URISyntaxException;
+    String selectBySno(String sno) throws InterruptedException, IOException, URISyntaxException;
 
 }

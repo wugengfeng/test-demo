@@ -13,6 +13,7 @@ import com.guarantee.mapper.GuaranteeMapper;
 import com.guarantee.service.GuaranteeService;
 import com.guarantee.service.ProxyService;
 import com.guarantee.util.CaptchaUtil;
+import com.guarantee.util.DateUtil;
 import com.guarantee.util.ElementUtil;
 import com.guarantee.util.HttpClientUtil;
 import org.apache.commons.lang3.StringUtils;
@@ -37,6 +38,7 @@ import java.net.URISyntaxException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.*;
+import java.util.concurrent.TimeUnit;
 
 /**
  * @create: 2019-07-15 18:28
@@ -44,6 +46,9 @@ import java.util.*;
  **/
 @Service
 public class GuaranteeServiceImpl implements GuaranteeService {
+
+    private static String TEMPALTE = "%s：%s<br>";
+    private static String TIME_TEMPALTE = "%s：%s到期<br>";
 
     private Logger logger = LogManager.getLogger(GuaranteeServiceImpl.class);
 
@@ -60,7 +65,7 @@ public class GuaranteeServiceImpl implements GuaranteeService {
     private ConfigMapper configMapper;
 
     @Override
-    public Guarantee selectBySno(String sno) throws InterruptedException, IOException, URISyntaxException {
+    public String selectBySno(String sno) throws InterruptedException, IOException, URISyntaxException {
         List<Integer> lenList = Arrays.asList(11, 12, 15);
         if (StringUtils.isBlank(sno) || !lenList.contains(sno.length()) ) {
             throw new CrawlException("错误的序列号");
@@ -72,7 +77,7 @@ public class GuaranteeServiceImpl implements GuaranteeService {
             guarantee = this.crawl(sno);
         }
 
-        return guarantee;
+        return this.getResult(guarantee);
     }
 
 
@@ -226,7 +231,6 @@ public class GuaranteeServiceImpl implements GuaranteeService {
                         supportDate = supportDate.substring(start, end);
                         guarantee.setSupportDate(this.date(supportDate));
                     }
-                    guarantee.setActivationDate(this.date(supportDate));
                 }
             }
 
@@ -258,7 +262,7 @@ public class GuaranteeServiceImpl implements GuaranteeService {
 
                     if (start > 0) {
                         guaranteeDate = guaranteeDate.substring(start, end);
-                        guarantee.setSupportDate(this.date(guaranteeDate));
+                        guarantee.setGuaranteeDate(this.date(guaranteeDate));
                     }
                 }
             }
@@ -341,5 +345,48 @@ public class GuaranteeServiceImpl implements GuaranteeService {
             logger.error("日期转换失败", e);
         }
         return null;
+    }
+
+    private String getResult(Guarantee guarantee) {
+        StringBuilder result = new StringBuilder();
+
+        Date date = new Date();
+        if (Objects.isNull(guarantee)) {
+            result.append("获取保修信息失败，请稍后再试");
+        } else {
+            result.append(String.format(TEMPALTE, "序 列 号", guarantee.getSno()));
+            result.append(String.format(TEMPALTE, "设备型号", guarantee.getIphoneInfo()));
+            result.append(String.format(TEMPALTE, "激活状态", guarantee.getActivationState()));
+
+            if (Objects.nonNull(guarantee.getSupportDate())) {
+                if (date.before(guarantee.getSupportDate())) {
+                    result.append(String.format(TIME_TEMPALTE, "电话支持", DateUtil.formatYMD(guarantee.getSupportDate())));
+                }
+            } else {
+                result.append(String.format(TEMPALTE, "电话支持", "已过期"));
+            }
+
+            //在保修期内的、激活时间=保修时间少一年、天数加一天
+            if (Objects.nonNull(guarantee.getGuaranteeDate())) {
+                if (date.before(guarantee.getGuaranteeDate())) {
+                    // 剩余天数
+                    int num = DateUtil.getDatePoor(guarantee.getGuaranteeDate(), date, TimeUnit.DAYS).intValue();
+                    result.append(String.format("%s：%s到期，剩余%s天<br>", "保修支持", DateUtil.formatYMD(guarantee.getGuaranteeDate()), num));
+
+                    Date activeDate = DateUtil.calculateDate(guarantee.getGuaranteeDate(), -1, Calendar.YEAR);
+                    activeDate = DateUtil.calculateDate(activeDate, 1, Calendar.DAY_OF_YEAR);
+                    result.append(String.format(TEMPALTE, "激活时间", DateUtil.formatYMD(activeDate)));
+                }
+            } else {
+                result.append(String.format(TEMPALTE, "保修支持", guarantee.getIsGuarantee()));
+                result.append(String.format(TEMPALTE, "激活时间", ""));
+            }
+
+            result.append(String.format(TEMPALTE, "是否延保", guarantee.getDelay()));
+            result.append(String.format(TEMPALTE, "是否官换机", guarantee.getChangePhone()));
+            result.append(String.format(TEMPALTE, "是否借出设备", guarantee.getLend()));
+        }
+
+        return result.toString();
     }
 }
