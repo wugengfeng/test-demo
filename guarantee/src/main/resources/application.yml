@@ -24,19 +24,19 @@ chromedriverPath: D:\crawl\chromedriver.exe
 daYangDistinguishPath: D:\crawl\DaYangDistinguish.dll
 cacheDir: D:\crawl\cache\
 enableProxy: false
-codeUrl: http://m515535.6655.la/code/get_code
+codeUrl: http://47.75.138.140:8022/code/get_code
 ---
 
 spring:
   profiles: linux
   datasource:
     base:
-      #driver-class-name: com.mysql.jdbc.Driver
-      #jdbc-url: jdbc:mysql://47.106.207.16:3306/guarantee?useUnicode=true&characterEncoding=utf8&useSSL=true&allowMultiQueries=true&autoReconnect=true
-      driver-class-name: com.mysql.cj.jdbc.Driver
-      jdbc-url: jdbc:mysql://47.106.207.16:3306/guarantee?useUnicode=true&characterEncoding=UTF-8
-      username: root
-      password: wgf123
+      driver-class-name: com.mysql.jdbc.Driver
+      jdbc-url: jdbc:mysql://47.244.2.3:3306/api3unlock?useUnicode=true&characterEncoding=utf8&useSSL=true&allowMultiQueries=true&autoReconnect=true
+      #driver-class-name: com.mysql.cj.jdbc.Driver
+      #jdbc-url: jdbc:mysql://47.106.207.16:3306/guarantee?useUnicode=true&characterEncoding=UTF-8
+      username: api3unlock
+      password: Sci5XYpsFeFC4wEX
 
       max-idle: 20
       min-idle: 20
@@ -53,4 +53,4 @@ chromedriverPath: /java/chromedriver
 daYangDistinguishPath: /java/DaYangDistinguish.dll
 cacheDir: /java/cache
 enableProxy: false
-codeUrl: http://m515535.6655.la/code/get_code
+codeUrl: http://47.75.138.140:8022/code/get_code

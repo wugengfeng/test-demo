@@ -225,12 +225,17 @@ public class GuaranteeServiceImpl implements GuaranteeService {
                 String match = "预计到期日：";
                 if (supportDate.contains(match)) {
                     int start = supportDate.lastIndexOf(match) + match.length();
-                    int end = start + 9;
-
                     if (start > 0) {
-                        supportDate = supportDate.substring(start, end);
+                        supportDate = supportDate.substring(start);
+                    }
+
+
+                    if (supportDate.contains("日")) {
+                        int end = supportDate.indexOf("日");
+                        supportDate = supportDate.substring(0, end);
                         guarantee.setSupportDate(this.date(supportDate));
                     }
+
                 }
             }
 
@@ -258,7 +263,7 @@ public class GuaranteeServiceImpl implements GuaranteeService {
 
                 if (guaranteeDate.contains(match)) {
                     int start = guaranteeDate.lastIndexOf(match) + match.length();
-                    int end = start + 9;
+                    int end = guaranteeDate.indexOf("注") - 2;
 
                     if (start > 0) {
                         guaranteeDate = guaranteeDate.substring(start, end);
@@ -376,6 +381,9 @@ public class GuaranteeServiceImpl implements GuaranteeService {
                     Date activeDate = DateUtil.calculateDate(guarantee.getGuaranteeDate(), -1, Calendar.YEAR);
                     activeDate = DateUtil.calculateDate(activeDate, 1, Calendar.DAY_OF_YEAR);
                     result.append(String.format(TEMPALTE, "激活时间", DateUtil.formatYMD(activeDate)));
+                } else {
+                    result.append(String.format(TEMPALTE, "保修支持", guarantee.getIsGuarantee()));
+                    result.append(String.format(TEMPALTE, "激活时间", ""));
                 }
             } else {
                 result.append(String.format(TEMPALTE, "保修支持", guarantee.getIsGuarantee()));
