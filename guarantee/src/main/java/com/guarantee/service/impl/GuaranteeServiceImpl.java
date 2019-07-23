@@ -69,8 +69,8 @@ public class GuaranteeServiceImpl implements GuaranteeService {
         List<Integer> lenList = Arrays.asList(11, 12, 15);
         if (StringUtils.isBlank(sno) || !lenList.contains(sno.length()) ) {
             Map<String, Object> map = new HashMap<>();
-            map.put("status", 1);
-            map.put("result","");
+            map.put("status", 3);
+            map.put("result", String.format(TEMPALTE, "序 列 号", sno) + "错误序列号(Wrong imei)");
             map.put("success", false);
             throw new CrawlException(JSON.toJSONString(map));
         }
@@ -142,8 +142,8 @@ public class GuaranteeServiceImpl implements GuaranteeService {
 
                         if (errMsg.contains("序列号无效")) {
                             Map<String, Object> map = new HashMap<>();
-                            map.put("status", 1);
-                            map.put("result","");
+                            map.put("status", 3);
+                            map.put("result", String.format(TEMPALTE, "序 列 号", sno) + "错误序列号(Wrong imei)");
                             map.put("success", false);
                             throw new CrawlException(JSON.toJSONString(map));
                         }
