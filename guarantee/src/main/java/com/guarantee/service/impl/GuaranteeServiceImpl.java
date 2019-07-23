@@ -47,8 +47,8 @@ import java.util.concurrent.TimeUnit;
 @Service
 public class GuaranteeServiceImpl implements GuaranteeService {
 
-    private static String TEMPALTE = "%s：%s<br>";
-    private static String TIME_TEMPALTE = "%s：%s到期<br>";
+    private static String TEMPALTE = "%s:%s<br>";
+    private static String TIME_TEMPALTE = "%s:%s到期<br>";
 
     private Logger logger = LogManager.getLogger(GuaranteeServiceImpl.class);
 
@@ -68,7 +68,11 @@ public class GuaranteeServiceImpl implements GuaranteeService {
     public String selectBySno(String sno) throws InterruptedException, IOException, URISyntaxException {
         List<Integer> lenList = Arrays.asList(11, 12, 15);
         if (StringUtils.isBlank(sno) || !lenList.contains(sno.length()) ) {
-            throw new CrawlException("错误的序列号");
+            Map<String, Object> map = new HashMap<>();
+            map.put("status", 1);
+            map.put("result","");
+            map.put("success", false);
+            throw new CrawlException(JSON.toJSONString(map));
         }
 
         Guarantee guarantee = this.guaranteeMapper.selectBySno(sno);
@@ -130,15 +134,22 @@ public class GuaranteeServiceImpl implements GuaranteeService {
                     String errMsg = ElementUtil.getValByCss(webDriver, "#error-wrapper-5 > div > span", WebElement::getText);
                     if (StringUtils.isNotBlank(errMsg)) {
                         if (errMsg.contains("更换产品")) {
-                            throw new CrawlException("已更换产品");
+                            StringBuilder sb = new StringBuilder()
+                                    .append(String.format(TEMPALTE, "序 列 号", sno))
+                                    .append(String.format(TEMPALTE, "保修状态", "已更换的设备"));
+                            throw new CrawlException(sb.toString());
                         }
 
                         if (errMsg.contains("序列号无效")) {
-                            throw new CrawlException("请输入有效的序列号");
+                            Map<String, Object> map = new HashMap<>();
+                            map.put("status", 1);
+                            map.put("result","");
+                            map.put("success", false);
+                            throw new CrawlException(JSON.toJSONString(map));
                         }
 
                         if (errMsg.contains("很抱歉，我们现在无法完成您的请求")) {
-                            throw new CrawlException(String.format("序 列 号：%s<br>激活状态:暂时无法查询", sno));
+                            throw new CrawlException(String.format("序 列 号:%s<br>激活状态:暂时无法查询", sno));
                         }
 
                         if (num == 3 && errMsg.contains("您输入的代码与图片不符")) {
@@ -170,10 +181,6 @@ public class GuaranteeServiceImpl implements GuaranteeService {
             for (String str : coverageList) {
                 String[] arr = str.split("=");
                 coverageMap.put(arr[0], arr[1]);
-            }
-
-            if ("N".equals(responseJson.getIS_REGISTERED())) {
-                throw new CrawlException("设备未激活");
             }
 
             // 判断有效购买时间 IS_REGISTERED
@@ -208,6 +215,16 @@ public class GuaranteeServiceImpl implements GuaranteeService {
                     productName = config.getMode();
             }
             guarantee.setIphoneInfo(productName);
+
+
+            if ("N".equals(responseJson.getIS_REGISTERED())) {
+                StringBuilder sb = new StringBuilder()
+                        .append(String.format(TEMPALTE, "序 列 号", sno))
+                        .append(String.format(TEMPALTE, "设备型号", productName))
+                        .append(String.format(TEMPALTE, "激活状态", "未激活"));
+                throw new CrawlException(sb.toString());
+            }
+
 
             // 序列号
             guarantee.setSno(sno);
@@ -376,7 +393,7 @@ public class GuaranteeServiceImpl implements GuaranteeService {
                 if (date.before(guarantee.getGuaranteeDate())) {
                     // 剩余天数
                     int num = DateUtil.getDatePoor(guarantee.getGuaranteeDate(), date, TimeUnit.DAYS).intValue();
-                    result.append(String.format("%s：%s到期，剩余%s天<br>", "保修支持", DateUtil.formatYMD(guarantee.getGuaranteeDate()), num));
+                    result.append(String.format("%s:%s到期，剩余%s天<br>", "保修支持", DateUtil.formatYMD(guarantee.getGuaranteeDate()), num));
 
                     Date activeDate = DateUtil.calculateDate(guarantee.getGuaranteeDate(), -1, Calendar.YEAR);
                     activeDate = DateUtil.calculateDate(activeDate, 1, Calendar.DAY_OF_YEAR);
