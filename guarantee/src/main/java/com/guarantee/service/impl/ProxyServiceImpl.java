@@ -24,7 +24,7 @@ public class ProxyServiceImpl implements ProxyService {
     public Proxy getProxy() {
         Proxy proxy = this.proxyMapper.getProxy(0);
         if (Objects.isNull(proxy)) {
-            proxy = this.proxyMapper.getProxy(3);
+            proxy = this.proxyMapper.getProxy(1);
         }
 
         Proxy update = new Proxy();
@@ -57,6 +57,8 @@ public class ProxyServiceImpl implements ProxyService {
         Proxy update = new Proxy();
         update.setId(proxy.getId());
         update.setStatus(2);
+        long time = System.currentTimeMillis() / 1000;
+        update.setLasttime((int) time);
         this.proxyMapper.updateByPrimaryKeySelective(update);
     }
 }

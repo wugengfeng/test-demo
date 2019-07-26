@@ -29,9 +29,7 @@ import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.util.CollectionUtils;
 
-import javax.lang.model.element.Element;
 import java.io.File;
 import java.io.IOException;
 import java.net.URISyntaxException;
@@ -47,8 +45,8 @@ import java.util.concurrent.TimeUnit;
 @Service
 public class GuaranteeServiceImpl implements GuaranteeService {
 
-    private static String TEMPALTE = "%s:%s<br>";
-    private static String TIME_TEMPALTE = "%s:%s到期<br>";
+    private static String TEMPALTE = "%s: %s<br>";
+    private static String TIME_TEMPALTE = "%s: %s到期<br>";
 
     private Logger logger = LogManager.getLogger(GuaranteeServiceImpl.class);
 
@@ -67,7 +65,7 @@ public class GuaranteeServiceImpl implements GuaranteeService {
     @Override
     public String selectBySno(String sno) throws InterruptedException, IOException, URISyntaxException {
         List<Integer> lenList = Arrays.asList(11, 12, 15);
-        if (StringUtils.isBlank(sno) || !lenList.contains(sno.length()) ) {
+        if (StringUtils.isBlank(sno) || !lenList.contains(sno.length())) {
             Map<String, Object> map = new HashMap<>();
             map.put("status", 3);
             map.put("result", String.format(TEMPALTE, "序 列 号", sno) + "错误序列号(Wrong imei)");
@@ -105,6 +103,8 @@ public class GuaranteeServiceImpl implements GuaranteeService {
             if (Objects.nonNull(proxy)) {
                 options.addArguments(String.format("--proxy-server=http://%s", proxy.getProxyip()));
             }
+
+            //options.addExtensions(new File(Constant.proxyPath));
         }
 
         WebDriver webDriver = new ChromeDriver(options);
@@ -149,7 +149,7 @@ public class GuaranteeServiceImpl implements GuaranteeService {
                         }
 
                         if (errMsg.contains("很抱歉，我们现在无法完成您的请求")) {
-                            throw new CrawlException(String.format("序 列 号:%s<br>激活状态:暂时无法查询", sno));
+                            throw new CrawlException(String.format("序 列 号: %s<br>激活状态: 暂时无法查询", sno));
                         }
 
                         if (num == 3 && errMsg.contains("您输入的代码与图片不符")) {
@@ -309,11 +309,12 @@ public class GuaranteeServiceImpl implements GuaranteeService {
             }
             guarantee.setCreateDate(new Date());
             this.guaranteeMapper.insertSelective(guarantee);
-
+            this.proxyService.freedProxy(proxy);
         } catch (Exception e) {
+            this.proxyService.deprecated(proxy);
+            logger.error("错误", webDriver.getPageSource());
             throw e;
         } finally {
-            this.proxyService.freedProxy(proxy);
             webDriver.quit();
             service.stop();
         }
@@ -393,7 +394,7 @@ public class GuaranteeServiceImpl implements GuaranteeService {
                 if (date.before(guarantee.getGuaranteeDate())) {
                     // 剩余天数
                     int num = DateUtil.getDatePoor(guarantee.getGuaranteeDate(), date, TimeUnit.DAYS).intValue();
-                    result.append(String.format("%s:%s到期，剩余%s天<br>", "保修支持", DateUtil.formatYMD(guarantee.getGuaranteeDate()), num));
+                    result.append(String.format("%s: %s到期，剩余%s天<br>", "保修支持", DateUtil.formatYMD(guarantee.getGuaranteeDate()), num));
 
                     Date activeDate = DateUtil.calculateDate(guarantee.getGuaranteeDate(), -1, Calendar.YEAR);
                     activeDate = DateUtil.calculateDate(activeDate, 1, Calendar.DAY_OF_YEAR);

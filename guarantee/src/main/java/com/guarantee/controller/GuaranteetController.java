@@ -1,5 +1,6 @@
 package com.guarantee.controller;
 
+import com.guarantee.constant.Constant;
 import com.guarantee.entity.Guarantee;
 import com.guarantee.service.GuaranteeService;
 import com.guarantee.util.DateUtil;
@@ -41,5 +42,14 @@ public class GuaranteetController {
         return result;
     }
 
+    @GetMapping("proxy")
+    public Boolean proxy(String proxy) throws IOException, URISyntaxException, InterruptedException {
+        if ("1".equals(proxy)) {
+            Constant.enableProxy = true;
+        } else {
+            Constant.enableProxy = false;
+        }
 
+        return Constant.enableProxy;
+    }
 }

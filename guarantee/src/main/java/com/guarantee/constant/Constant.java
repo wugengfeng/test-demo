@@ -21,6 +21,8 @@ public class Constant {
      */
     public static String cacheDir;
 
+    public static String proxyPath;
+
     /**
      * 是否启用缓存
      */
@@ -51,5 +53,10 @@ public class Constant {
     @Value("${codeUrl}")
     public void setCodeUrl(String codeUrl) {
         Constant.codeUrl = codeUrl;
+    }
+
+    @Value("${proxyPath}")
+    public void setProxyPath(String proxyPath) {
+        Constant.proxyPath = proxyPath;
     }
 }

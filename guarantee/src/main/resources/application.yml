@@ -2,10 +2,10 @@ spring:
   profiles: window
   datasource:
     base:
-      #driver-class-name: com.mysql.jdbc.Driver
-      #jdbc-url: jdbc:mysql://47.244.2.3:3306:3306/guarantee?useUnicode=true&characterEncoding=utf8&useSSL=true&allowMultiQueries=true&autoReconnect=true
-      driver-class-name: com.mysql.cj.jdbc.Driver
-      jdbc-url: jdbc:mysql://47.244.2.3:3306/guarantee?useUnicode=true&characterEncoding=UTF-8
+      driver-class-name: com.mysql.jdbc.Driver
+      jdbc-url: jdbc:mysql://47.244.2.3:3306/api3unlock?useUnicode=true&characterEncoding=utf8&useSSL=true&allowMultiQueries=true&autoReconnect=true
+      #driver-class-name: com.mysql.cj.jdbc.Driver
+      #jdbc-url: jdbc:mysql://47.106.207.16:3306/guarantee?useUnicode=true&characterEncoding=UTF-8
       username: api3unlock
       password: Sci5XYpsFeFC4wEX
 
@@ -23,7 +23,8 @@ server:
 chromedriverPath: D:\crawl\chromedriver.exe
 daYangDistinguishPath: D:\crawl\DaYangDistinguish.dll
 cacheDir: D:\crawl\cache\
-enableProxy: false
+enableProxy: true
+proxyPath: D:\crawl\proxy.zip
 codeUrl: http://47.75.138.140:8022/code/get_code
 ---
 
@@ -52,5 +53,6 @@ server:
 chromedriverPath: /java/chromedriver
 daYangDistinguishPath: /java/DaYangDistinguish.dll
 cacheDir: /java/cache
-enableProxy: false
+enableProxy: true
+proxyPath: /java/proxy.zip
 codeUrl: http://47.75.138.140:8022/code/get_code
