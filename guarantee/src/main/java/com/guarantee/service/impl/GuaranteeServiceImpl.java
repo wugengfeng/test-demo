@@ -11,10 +11,7 @@ import com.guarantee.mapper.ConfigMapper;
 import com.guarantee.mapper.GuaranteeMapper;
 import com.guarantee.proxy.ProxyUtil;
 import com.guarantee.service.GuaranteeService;
-import com.guarantee.util.CaptchaUtil;
-import com.guarantee.util.DateUtil;
-import com.guarantee.util.ElementUtil;
-import com.guarantee.util.HttpClientUtil;
+import com.guarantee.util.*;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -333,10 +330,7 @@ public class GuaranteeServiceImpl implements GuaranteeService {
         String ansStr = base64Element.getAttribute("src").replace("data:image/jpeg;base64,", "");
         if (num < 3) {
             // 调用自己验证
-            this.logger.info("调用dll验证");
-            Map<String, String> param = new HashMap<>();
-            param.put("base64", ansStr);
-            ansStr = HttpClientUtil.postJSON(Constant.codeUrl, JSON.toJSONString(param));
+            ansStr = DistinguishUtil.getAuthCode(ansStr);
         } else {
             this.logger.info("调用接口验证");
             ansStr = CaptchaUtil.getAuthCode(ansStr);
