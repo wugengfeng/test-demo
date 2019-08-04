@@ -5,13 +5,12 @@ import com.guarantee.agent.UserAgent;
 import com.guarantee.constant.Constant;
 import com.guarantee.entity.Config;
 import com.guarantee.entity.Guarantee;
-import com.guarantee.entity.Proxy;
 import com.guarantee.entity.json.ResponseJson;
 import com.guarantee.exception.CrawlException;
 import com.guarantee.mapper.ConfigMapper;
 import com.guarantee.mapper.GuaranteeMapper;
+import com.guarantee.proxy.ProxyUtil;
 import com.guarantee.service.GuaranteeService;
-import com.guarantee.service.ProxyService;
 import com.guarantee.util.CaptchaUtil;
 import com.guarantee.util.DateUtil;
 import com.guarantee.util.ElementUtil;
@@ -20,6 +19,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.openqa.selenium.By;
+import org.openqa.selenium.Proxy;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.chrome.ChromeDriver;
@@ -57,9 +57,6 @@ public class GuaranteeServiceImpl implements GuaranteeService {
     private UserAgent defaultUserAgent;
 
     @Autowired
-    private ProxyService proxyService;
-
-    @Autowired
     private ConfigMapper configMapper;
 
     @Override
@@ -92,20 +89,16 @@ public class GuaranteeServiceImpl implements GuaranteeService {
 
         //设置为 headless 模式 （必须）
         options.addArguments(String.format("--disk-cache-dir=%s", Constant.cacheDir));
-        options.addArguments("--headless");
+        /*options.addArguments("--headless");
         options.addArguments("--no-sandbox");
-        options.addArguments("--disable-gpu");
+        options.addArguments("--disable-gpu");*/
         options.addArguments(String.format("--user-agent=%s", userAgent));
+        //options.addArguments(String.format("--proxy-server=http://%s", "183.129.244.16:16766"));
 
-        Proxy proxy = null;
-        if (Constant.enableProxy) {
-            proxy = this.proxyService.getProxy();
-            if (Objects.nonNull(proxy)) {
-                options.addArguments(String.format("--proxy-server=http://%s", proxy.getProxyip()));
-            }
-
-            //options.addExtensions(new File(Constant.proxyPath));
-        }
+        String proxyAddress = ProxyUtil.getProxy();
+        Proxy ipProxy = new Proxy();
+        ipProxy.setHttpProxy(proxyAddress);
+        options.setProxy(ipProxy);
 
         WebDriver webDriver = new ChromeDriver(options);
         ChromeDriverService service = new ChromeDriverService.Builder()
@@ -117,6 +110,8 @@ public class GuaranteeServiceImpl implements GuaranteeService {
         try {
             service.start();
             webDriver.get("https://checkcoverage.apple.com/cn/zh/");
+
+            logger.info(String.format("---------------------------------- %s -----------------------------------", "开始"));
 
             WebElement productNameElement = null;
             int num = 0;
@@ -309,10 +304,7 @@ public class GuaranteeServiceImpl implements GuaranteeService {
             }
             guarantee.setCreateDate(new Date());
             this.guaranteeMapper.insertSelective(guarantee);
-            this.proxyService.freedProxy(proxy);
         } catch (Exception e) {
-            this.proxyService.deprecated(proxy);
-            logger.error("错误", webDriver.getPageSource());
             throw e;
         } finally {
             webDriver.quit();
