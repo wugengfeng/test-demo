@@ -20,9 +20,9 @@ spring:
 
 server:
   port: 8023
-chromedriverPath: C:\java\crawl\chromedriver.exe
-daYangDistinguishPath: C:\java\crawl\crawl\DaYangDistinguish.dll
-cacheDir: C:\java\crawl\cache\
+chromedriverPath: D:\crawl\chromedriver.exe
+daYangDistinguishPath: D:\crawl\DaYangDistinguish.dll
+cacheDir: D:\crawl\cache\
 enableProxy: true
 proxyPath: D:\crawl\proxy.zip
 codeUrl: http://47.75.138.140:8022/code/get_code

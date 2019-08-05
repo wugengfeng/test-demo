@@ -15,10 +15,8 @@ import com.guarantee.util.*;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.openqa.selenium.By;
-import org.openqa.selenium.Proxy;
-import org.openqa.selenium.WebDriver;
-import org.openqa.selenium.WebElement;
+import org.openqa.selenium.*;
+import org.openqa.selenium.NoSuchElementException;
 import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.chrome.ChromeDriverService;
 import org.openqa.selenium.chrome.ChromeOptions;
@@ -69,9 +67,23 @@ public class GuaranteeServiceImpl implements GuaranteeService {
 
         Guarantee guarantee = this.guaranteeMapper.selectBySno(sno);
 
-        if (Objects.isNull(guarantee)) {
-            guarantee = this.crawl(sno);
+        if (Objects.nonNull(guarantee)) {
+            return this.getResult(guarantee);
         }
+
+        int reTry = 0;
+        do {
+            try {
+                guarantee = this.crawl(sno);
+            } catch (TimeoutException | NoSuchElementException e) {
+                reTry++;
+                logger.error(String.format("对序列号 %s 进行第%s次重试", sno, reTry));
+
+                if (reTry >= 3) {
+                    throw e;
+                }
+            }
+        } while (reTry > 0 && reTry < 3);
 
         return this.getResult(guarantee);
     }
@@ -86,9 +98,9 @@ public class GuaranteeServiceImpl implements GuaranteeService {
 
         //设置为 headless 模式 （必须）
         options.addArguments(String.format("--disk-cache-dir=%s", Constant.cacheDir));
-        /*options.addArguments("--headless");
+        options.addArguments("--headless");
         options.addArguments("--no-sandbox");
-        options.addArguments("--disable-gpu");*/
+        options.addArguments("--disable-gpu");
         options.addArguments(String.format("--user-agent=%s", userAgent));
         //options.addArguments(String.format("--proxy-server=http://%s", "183.129.244.16:16766"));
 
@@ -330,7 +342,10 @@ public class GuaranteeServiceImpl implements GuaranteeService {
         String ansStr = base64Element.getAttribute("src").replace("data:image/jpeg;base64,", "");
         if (num < 3) {
             // 调用自己验证
-            ansStr = DistinguishUtil.getAuthCode(ansStr);
+            this.logger.info("调用dll验证");
+            Map<String, String> param = new HashMap<>();
+            param.put("base64", ansStr);
+            ansStr = HttpClientUtil.postJSON(Constant.codeUrl, JSON.toJSONString(param));
         } else {
             this.logger.info("调用接口验证");
             ansStr = CaptchaUtil.getAuthCode(ansStr);
