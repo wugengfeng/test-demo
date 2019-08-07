@@ -72,18 +72,21 @@ public class GuaranteeServiceImpl implements GuaranteeService {
         }
 
         int reTry = 0;
+        Boolean isRetry = null;
         do {
             try {
+                isRetry = false;
                 guarantee = this.crawl(sno);
             } catch (TimeoutException | NoSuchElementException e) {
                 reTry++;
+                isRetry = true;
                 logger.error(String.format("对序列号 %s 进行第%s次重试", sno, reTry));
 
                 if (reTry >= 3) {
                     throw e;
                 }
             }
-        } while (reTry > 0 && reTry < 3);
+        } while (reTry > 0 && reTry < 3 && isRetry);
 
         return this.getResult(guarantee);
     }
