@@ -105,12 +105,12 @@ public class GuaranteeServiceImpl implements GuaranteeService {
         options.addArguments("--no-sandbox");
         options.addArguments("--disable-gpu");
         options.addArguments(String.format("--user-agent=%s", userAgent));
-        //options.addArguments(String.format("--proxy-server=http://%s", "183.129.244.16:16766"));
 
         String proxyAddress = ProxyUtil.getProxy();
-        Proxy ipProxy = new Proxy();
+        /*Proxy ipProxy = new Proxy();
         ipProxy.setHttpProxy(proxyAddress);
-        options.setProxy(ipProxy);
+        options.setProxy(ipProxy);*/
+        options.addArguments(String.format("--proxy-server=http://%s", proxyAddress));
 
         WebDriver webDriver = new ChromeDriver(options);
         ChromeDriverService service = new ChromeDriverService.Builder()
