@@ -106,11 +106,11 @@ public class GuaranteeServiceImpl implements GuaranteeService {
         options.addArguments("--disable-gpu");
         options.addArguments(String.format("--user-agent=%s", userAgent));
 
-        String proxyAddress = ProxyUtil.getProxy();
-        /*Proxy ipProxy = new Proxy();
+        /*String proxyAddress = ProxyUtil.getProxy();
+        Proxy ipProxy = new Proxy();
         ipProxy.setHttpProxy(proxyAddress);
-        options.setProxy(ipProxy);*/
-        options.addArguments(String.format("--proxy-server=http://%s", proxyAddress));
+        options.setProxy(ipProxy);
+        options.addArguments(String.format("--proxy-server=http://%s", proxyAddress));*/
 
         WebDriver webDriver = new ChromeDriver(options);
         ChromeDriverService service = new ChromeDriverService.Builder()
@@ -223,6 +223,15 @@ public class GuaranteeServiceImpl implements GuaranteeService {
             }
             guarantee.setIphoneInfo(productName);
 
+            // 是否验证
+            String verify = ElementUtil.getValByCss(webDriver, "#notregistered > div.result-info > h3", WebElement::getText);
+            if (StringUtils.isNotBlank(verify) && verify.contains("日期未验证")) {
+                StringBuilder sb = new StringBuilder()
+                        .append(String.format(TEMPALTE, "序 列 号", sno))
+                        .append(String.format(TEMPALTE, "设备型号", productName))
+                        .append(String.format(TEMPALTE, "激活状态", "未验证购买日期"));
+                throw new CrawlException(sb.toString());
+            }
 
             if ("N".equals(responseJson.getIS_REGISTERED())) {
                 StringBuilder sb = new StringBuilder()
@@ -231,7 +240,6 @@ public class GuaranteeServiceImpl implements GuaranteeService {
                         .append(String.format(TEMPALTE, "激活状态", "未激活"));
                 throw new CrawlException(sb.toString());
             }
-
 
             // 序列号
             guarantee.setSno(sno);
@@ -346,9 +354,7 @@ public class GuaranteeServiceImpl implements GuaranteeService {
         if (num < 3) {
             // 调用自己验证
             this.logger.info("调用dll验证");
-            Map<String, String> param = new HashMap<>();
-            param.put("base64", ansStr);
-            ansStr = HttpClientUtil.postJSON(Constant.codeUrl, JSON.toJSONString(param));
+            ansStr = DistinguishUtil.getAuthCode(ansStr);
         } else {
             this.logger.info("调用接口验证");
             ansStr = CaptchaUtil.getAuthCode(ansStr);
