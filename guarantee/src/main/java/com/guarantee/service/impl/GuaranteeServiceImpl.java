@@ -233,7 +233,8 @@ public class GuaranteeServiceImpl implements GuaranteeService {
                 throw new CrawlException(sb.toString());
             }
 
-            if ("N".equals(responseJson.getIS_REGISTERED())) {
+            String registered = ElementUtil.getValByCss(webDriver, "#iphonenotactivated > div.result-info > h3", WebElement::getText);
+            if ("N".equals(responseJson.getIS_REGISTERED()) || registered.contains("请激活")) {
                 StringBuilder sb = new StringBuilder()
                         .append(String.format(TEMPALTE, "序 列 号", sno))
                         .append(String.format(TEMPALTE, "设备型号", productName))
