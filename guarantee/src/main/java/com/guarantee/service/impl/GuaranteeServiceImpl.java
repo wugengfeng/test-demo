@@ -290,6 +290,7 @@ public class GuaranteeServiceImpl implements GuaranteeService {
 
             // 保修剩余
             String guaranteeDate = ElementUtil.getValByCss(webDriver, "#hardware > div.result-info > p", WebElement::getText);
+
             if (StringUtils.isNotBlank(guaranteeDate)) {
 
                 String match = "预计到期日：";
@@ -302,6 +303,18 @@ public class GuaranteeServiceImpl implements GuaranteeService {
                         guaranteeDate = guaranteeDate.substring(start, end);
                         guarantee.setGuaranteeDate(this.date(guaranteeDate));
                     }
+                }
+            }
+
+            if (Objects.isNull(guarantee.getGuaranteeDate())) {
+                guaranteeDate = ElementUtil.getValByCss(webDriver, "#app > div.result-info > p", WebElement::getText);
+                String flag = "服务最长可至：";
+                if (guaranteeDate.contains(flag)) {
+                    int start = guaranteeDate.lastIndexOf(flag);
+                    guaranteeDate = guaranteeDate.substring(start + flag.length());
+                    guarantee.setGuaranteeDate(this.date(guaranteeDate));
+
+                    guarantee.setActivationDate(DateUtil.calculateDate(guarantee.getGuaranteeDate(), -2, Calendar.YEAR));
                 }
             }
 
@@ -407,9 +420,13 @@ public class GuaranteeServiceImpl implements GuaranteeService {
                     int num = DateUtil.getDatePoor(guarantee.getGuaranteeDate(), date, TimeUnit.DAYS).intValue();
                     result.append(String.format("%s: %s到期，剩余%s天<br>", "保修支持", DateUtil.formatYMD(guarantee.getGuaranteeDate()), num));
 
-                    Date activeDate = DateUtil.calculateDate(guarantee.getGuaranteeDate(), -1, Calendar.YEAR);
-                    activeDate = DateUtil.calculateDate(activeDate, 1, Calendar.DAY_OF_YEAR);
-                    result.append(String.format(TEMPALTE, "激活时间", DateUtil.formatYMD(activeDate)));
+                    if (Objects.nonNull(guarantee.getActivationDate())) {
+                        result.append(String.format(TEMPALTE, "激活时间", DateUtil.formatYMD(guarantee.getActivationDate())));
+                    } else {
+                        Date activeDate = DateUtil.calculateDate(guarantee.getGuaranteeDate(), -1, Calendar.YEAR);
+                        activeDate = DateUtil.calculateDate(activeDate, 1, Calendar.DAY_OF_YEAR);
+                        result.append(String.format(TEMPALTE, "激活时间", DateUtil.formatYMD(activeDate)));
+                    }
                 } else {
                     result.append(String.format(TEMPALTE, "保修支持", guarantee.getIsGuarantee()));
                     result.append(String.format(TEMPALTE, "激活时间", ""));
