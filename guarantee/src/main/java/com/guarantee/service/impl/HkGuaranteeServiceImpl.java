@@ -9,14 +9,15 @@ import com.guarantee.entity.json.ResponseJson;
 import com.guarantee.exception.CrawlException;
 import com.guarantee.mapper.ConfigMapper;
 import com.guarantee.mapper.GuaranteeMapper;
-import com.guarantee.proxy.ProxyUtil;
 import com.guarantee.service.GuaranteeService;
-import com.guarantee.util.*;
+import com.guarantee.util.CaptchaUtil;
+import com.guarantee.util.DateUtil;
+import com.guarantee.util.DistinguishUtil;
+import com.guarantee.util.ElementUtil;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.openqa.selenium.*;
-import org.openqa.selenium.NoSuchElementException;
 import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.chrome.ChromeDriverService;
 import org.openqa.selenium.chrome.ChromeOptions;
@@ -31,19 +32,20 @@ import java.net.URISyntaxException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.*;
+import java.util.NoSuchElementException;
 import java.util.concurrent.TimeUnit;
 
 /**
  * @create: 2019-07-15 18:28
  * @description:
  **/
-@Service("guaranteeService")
-public class GuaranteeServiceImpl implements GuaranteeService {
+@Service("hkGuaranteeService")
+public class HkGuaranteeServiceImpl implements GuaranteeService {
 
     private static String TEMPALTE = "%s: %s<br>";
     private static String TIME_TEMPALTE = "%s: %s到期<br>";
 
-    private Logger logger = LogManager.getLogger(GuaranteeServiceImpl.class);
+    private Logger logger = LogManager.getLogger(HkGuaranteeServiceImpl.class);
 
     @Autowired
     private GuaranteeMapper guaranteeMapper;
@@ -121,7 +123,7 @@ public class GuaranteeServiceImpl implements GuaranteeService {
         Guarantee guarantee = new Guarantee();
         try {
             service.start();
-            webDriver.get("https://checkcoverage.apple.com/cn/zh/");
+            webDriver.get("https://checkcoverage.apple.com/hk/zh/");
 
             logger.info(String.format("---------------------------------- %s -----------------------------------", "开始"));
 
@@ -140,14 +142,14 @@ public class GuaranteeServiceImpl implements GuaranteeService {
 
                     String errMsg = ElementUtil.getValByCss(webDriver, "#error-wrapper-5 > div > span", WebElement::getText);
                     if (StringUtils.isNotBlank(errMsg)) {
-                        if (errMsg.contains("更换产品")) {
+                        if (errMsg.contains("更換產品")) {
                             StringBuilder sb = new StringBuilder()
                                     .append(String.format(TEMPALTE, "序 列 号", sno))
                                     .append(String.format(TEMPALTE, "保修状态", "已更换的设备"));
                             throw new CrawlException(sb.toString());
                         }
 
-                        if (errMsg.contains("序列号无效")) {
+                        if (errMsg.contains("序號無效")) {
                             Map<String, Object> map = new HashMap<>();
                             map.put("status", 3);
                             map.put("result", String.format(TEMPALTE, "序 列 号", sno) + "错误序列号(Wrong imei)");
@@ -155,11 +157,11 @@ public class GuaranteeServiceImpl implements GuaranteeService {
                             throw new CrawlException(JSON.toJSONString(map));
                         }
 
-                        if (errMsg.contains("很抱歉，我们现在无法完成您的请求")) {
+                        if (errMsg.contains("無法完成您的請求")) {
                             throw new CrawlException(String.format("序 列 号: %s<br>激活状态: 暂时无法查询", sno));
                         }
 
-                        if (num == 3 && errMsg.contains("您输入的代码与图片不符")) {
+                        if (num == 3 && errMsg.contains("您所輸入的代碼與圖片不符")) {
                             logger.error("验证码识别错误");
                         }
                     }
@@ -225,7 +227,7 @@ public class GuaranteeServiceImpl implements GuaranteeService {
 
             // 是否验证
             String verify = ElementUtil.getValByCss(webDriver, "#notregistered > div.result-info > h3", WebElement::getText);
-            if (StringUtils.isNotBlank(verify) && verify.contains("日期未验证")) {
+            if (StringUtils.isNotBlank(verify) && verify.contains("日期未驗證")) {
                 StringBuilder sb = new StringBuilder()
                         .append(String.format(TEMPALTE, "序 列 号", sno))
                         .append(String.format(TEMPALTE, "设备型号", productName))
@@ -234,7 +236,7 @@ public class GuaranteeServiceImpl implements GuaranteeService {
             }
 
             String registered = ElementUtil.getValByCss(webDriver, "#iphonenotactivated > div.result-info > h3", WebElement::getText);
-            if ("N".equals(responseJson.getIS_REGISTERED()) || registered.contains("请激活")) {
+            if ("N".equals(responseJson.getIS_REGISTERED()) || registered.contains("請激活")) {
                 StringBuilder sb = new StringBuilder()
                         .append(String.format(TEMPALTE, "序 列 号", sno))
                         .append(String.format(TEMPALTE, "设备型号", productName))
@@ -255,7 +257,7 @@ public class GuaranteeServiceImpl implements GuaranteeService {
             // 电话技术支持日期
             String supportDate = ElementUtil.getValByCss(webDriver, "#iphone > div.result-info > p", WebElement::getText);
             if (StringUtils.isNotBlank(supportDate)) {
-                String match = "预计到期日：";
+                String match = "預計到期日：";
                 if (supportDate.contains(match)) {
                     int start = supportDate.lastIndexOf(match) + match.length();
                     if (start > 0) {
@@ -282,7 +284,7 @@ public class GuaranteeServiceImpl implements GuaranteeService {
             }
 
             // 是否延保
-            if (hwcov.contains("PE") || hwcov.contains("PD") || hwcov.contains("PP") || html.contains("根据 AppleCare 产品的规定")) {
+            if (hwcov.contains("PE") || hwcov.contains("PD") || hwcov.contains("PP") || html.contains("根據 AppleCare 產品的規定")) {
                 guarantee.setDelay("延保");
             } else {
                 guarantee.setDelay("无");
@@ -293,11 +295,11 @@ public class GuaranteeServiceImpl implements GuaranteeService {
 
             if (StringUtils.isNotBlank(guaranteeDate)) {
 
-                String match = "预计到期日：";
+                String match = "預計到期日：";
 
                 if (guaranteeDate.contains(match)) {
                     int start = guaranteeDate.lastIndexOf(match) + match.length();
-                    int end = guaranteeDate.indexOf("注") - 2;
+                    int end = guaranteeDate.indexOf("瞭") - 1;
 
                     if (start > 0) {
                         guaranteeDate = guaranteeDate.substring(start, end);
@@ -308,7 +310,7 @@ public class GuaranteeServiceImpl implements GuaranteeService {
 
             if (Objects.isNull(guarantee.getGuaranteeDate())) {
                 guaranteeDate = ElementUtil.getValByCss(webDriver, "#app > div.result-info > p", WebElement::getText);
-                String flag = "服务最长可至：";
+                String flag = "服務最長可至：";
                 if (guaranteeDate.contains(flag)) {
                     int start = guaranteeDate.lastIndexOf(flag);
                     guaranteeDate = guaranteeDate.substring(start + flag.length());
@@ -319,7 +321,7 @@ public class GuaranteeServiceImpl implements GuaranteeService {
             }
 
             // 是否官换机
-            if (html.contains("我们的记录显示，您的产品存在相关的服务历史记录")) {
+            if (html.contains("我們的記錄顯示，您的產品存在相關的服務歷史記錄")) {
                 guarantee.setChangePhone("是");
             } else {
                 guarantee.setChangePhone("否");
