@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.wgf.test.mapper.h2.H2AllListingMapper">
+    <resultMap id="BaseResultMap" type="com.wgf.test.entity.h2.H2AllListing">
+        <!--
+          WARNING - @mbg.generated
+        -->
+        <id column="id" jdbcType="INTEGER" property="id"/>
+        <result column="area_id" jdbcType="INTEGER" property="areaId"/>
+        <result column="site_id" jdbcType="INTEGER" property="siteId"/>
+        <result column="account_id" jdbcType="INTEGER" property="accountId"/>
+        <result column="account_ids" jdbcType="VARCHAR" property="accountIds"/>
+        <result column="seller_sku" jdbcType="VARCHAR" property="sellerSku"/>
+        <result column="asin" jdbcType="VARCHAR" property="asin"/>
+        <!--<result column="parent" jdbcType="BIT" property="parent" />-->
+        <result column="parent_asin" jdbcType="VARCHAR" property="parentAsin"/>
+        <result column="listing_id" jdbcType="VARCHAR" property="listingId"/>
+        <result column="open_date" jdbcType="TIMESTAMP" property="openDate"/>
+        <result column="price" jdbcType="DECIMAL" property="price"/>
+        <result column="product_id" jdbcType="VARCHAR" property="productId"/>
+        <result column="quantity" jdbcType="INTEGER" property="quantity"/>
+        <result column="status" jdbcType="VARCHAR" property="status"/>
+        <result column="create_date" jdbcType="TIMESTAMP" property="createDate"/>
+        <result column="update_date" jdbcType="TIMESTAMP" property="updateDate"/>
+        <result column="area" jdbcType="VARCHAR" property="area"/>
+        <result column="account_name" jdbcType="VARCHAR" property="accountName"/>
+        <result column="site_name" jdbcType="VARCHAR" property="siteName"/>
+        <result column="parent_id" jdbcType="INTEGER" property="parentId"/>
+        <result column="type" jdbcType="CHAR" property="type"/>
+        <result column="data_digest" jdbcType="VARCHAR" property="dataDigest"/>
+        <result column="auth_id" jdbcType="VARCHAR" property="authId"/>
+
+        <result column="item_name" jdbcType="LONGVARCHAR" property="itemName"/>
+        <result column="image_url" jdbcType="LONGVARCHAR" property="imageUrl"/>
+        <result column="company_sku" jdbcType="VARCHAR" property="companySku"/>
+        <result column="fnsku" jdbcType="VARCHAR" property="fnsku"/>
+        <result column="sku_type" jdbcType="VARCHAR" property="skuType"/>
+        <result column="product_name" jdbcType="VARCHAR" property="productName" />
+
+
+  </resultMap>
+</mapper>

@@ -1,0 +1,52 @@
+spring:
+  datasource:
+    # h2 数据库配置
+    #schema: classpath:db/schema.sql                # H2表结构初始化脚本 这个启用每次服务重启都会重建一次表
+    # data: classpath:db/data.sql                  # 数据初始化脚本
+    driver-class-name: org.h2.Driver
+    url: jdbc:h2:tcp://localhost:9092/~/cache   #H2 有内存模式，服务模式，混合模式。现在使用的是服务模式
+    username: sa
+    password:
+
+    initial-size: 10     #连接池初始化连接数量
+    max-active: 20       #连接池最大活跃连接数
+    min-idle: 10         #最小空闲数
+    max-wait: 60000      #最大等待时间
+    time-between-eviction-runs-millis: 60000    # 配置间隔多久才进行一次检测，检测需要关闭的空闲连接，单位是毫秒
+    min-evictable-idle-time-millis: 300000      # 配置一个连接在池中最小生存的时间，单位是毫秒
+    validation-query: SELECT 1 FROM DUAL        # 连接是否有效校验语句
+    test-on-borrow: false
+    test-on-return: false
+    test-while-idle: true
+    pool-prepared-statements: true
+    max-pool-prepared-statement-per-connection-size: 50
+    use-global-data-source-stat: true
+    druid-login-name: admin
+    druid-password: admin
+
+    base:
+      driver-class-name: com.mysql.jdbc.Driver
+      url: jdbc:mysql://localhost:3306/test?useUnicode=true&characterEncoding=utf8&useSSL=true&allowMultiQueries=true&autoReconnect=true
+      username: root
+      password: root
+
+      initial-size: 10     #连接池初始化连接数量
+      max-active: 20       #连接池最大活跃连接数
+      min-idle: 10         #最小空闲数
+      max-wait: 60000      #最大等待时间
+      time-between-eviction-runs-millis: 60000    # 配置间隔多久才进行一次检测，检测需要关闭的空闲连接，单位是毫秒
+      min-evictable-idle-time-millis: 300000      # 配置一个连接在池中最小生存的时间，单位是毫秒
+      validation-query: SELECT 1 FROM DUAL        # 连接是否有效校验语句
+      test-on-borrow: false
+      test-on-return: false
+      test-while-idle: true
+      pool-prepared-statements: true
+      max-pool-prepared-statement-per-connection-size: 50
+      use-global-data-source-stat: true
+      druid-login-name: admin
+      druid-password: admin
+
+  h2:
+    console:
+      enabled: true
+      path: /console
