@@ -8,6 +8,7 @@ import com.wgf.test.entity.h2.H2AllListing;
 import com.wgf.test.mapper.base.AllListingMapper;
 import com.wgf.test.mapper.h2.H2AllListingMapper;
 import com.wgf.test.util.PagingQueryUtil;
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.BeanUtils;
@@ -33,8 +34,19 @@ public class H2Test {
     @Autowired
     private H2AllListingMapper h2AllListingMapper;
 
-    @Test
+    /**
+     * 模拟 mysql 数据预热 到 h2
+     * 实际情况可以使用spring 监听器
+     */
+    @Before
     public void init() {
+
+        Long countNum = PageHelper.count(() -> this.h2AllListingMapper.selectAll());
+
+        // 如果数据已预热则跳过
+        if (countNum > 0) {
+            return;
+        }
 
         ISelect iSelect = () -> this.allListingMapper.selectAll();
         PagingQueryUtil<List<AllListing>> pagingQueryUtil = PagingQueryUtil.instance(iSelect, 1000);
@@ -54,6 +66,9 @@ public class H2Test {
         }
     }
 
+    /**
+     * 注入mapper测试性能
+     */
     @Test
     public void select() {
 
@@ -65,6 +80,6 @@ public class H2Test {
         start = System.currentTimeMillis();
         PageHelper.startPage(0,1000);
         this.h2AllListingMapper.select(new H2AllListing());
-        System.out.println(String.format("mysql 耗时 %s 毫秒", System.currentTimeMillis() - start));
+        System.out.println(String.format("h2 耗时 %s 毫秒", System.currentTimeMillis() - start));
     }
 }

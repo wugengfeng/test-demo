@@ -1,5 +1,5 @@
-DROP TABLE IF EXISTS h2_sys_user;
-CREATE TABLE h2_sys_user
+-- 表不存在则创建，存在不删除
+CREATE TABLE  IF NOT EXISTS h2_sys_user
 (
   id int(11) NOT NULL AUTO_INCREMENT,
   name varchar(40) NOT NULL,
@@ -18,8 +18,7 @@ CREATE TABLE h2_sys_user
   PRIMARY KEY (id)
 );
 
-DROP TABLE IF EXISTS h2_all_listing;
-CREATE TABLE h2_all_listing
+CREATE TABLE  IF NOT EXISTS h2_all_listing
 (
   id int(11) NOT NULL AUTO_INCREMENT,
   area_id int(11) DEFAULT NULL,

@@ -1,7 +1,7 @@
 spring:
   datasource:
-    # h2 数据库配置
-    #schema: classpath:db/schema.sql                # H2表结构初始化脚本 这个启用每次服务重启都会重建一次表
+    # h2 数据库配置， 这里要把H2配置为主数据源。这种配置跟进了下 spring 源码数据源总数超过2个将不执行初始化sql
+    schema: classpath:db/schema.sql                # H2表结构初始化脚本 这个启用每次服务重启都会重建一次表
     # data: classpath:db/data.sql                  # 数据初始化脚本
     driver-class-name: org.h2.Driver
     url: jdbc:h2:tcp://localhost:9092/~/cache   #H2 有内存模式，服务模式，混合模式。现在使用的是服务模式
@@ -27,8 +27,8 @@ spring:
     base:
       driver-class-name: com.mysql.jdbc.Driver
       url: jdbc:mysql://localhost:3306/test?useUnicode=true&characterEncoding=utf8&useSSL=true&allowMultiQueries=true&autoReconnect=true
-      username: root
-      password: root
+      username: username
+      password: password
 
       initial-size: 10     #连接池初始化连接数量
       max-active: 20       #连接池最大活跃连接数
