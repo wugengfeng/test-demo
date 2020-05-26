@@ -22,29 +22,12 @@ import java.util.UUID;
  * @author: wgf
  * @create: 2020-05-25 17:17
  * @description: XA两阶段提交测试
- * <p>
- * MySql XA分支事务流程
- * <p>
- * # 开启xa
- * xa start 'xa_test';
- * <p>
- * # DML操作
- * <p>
- * # 结束xa
- * xa end 'xa_test';      将事务状态改为 DIEL
- * <p>
- * # 第一阶段提交
- * xa prepare 'xa_test';  将事务状态改为 PREPARE
- * <p>
- * # 第二阶段提交
- * xa commit 'xa_test';
- * <p>
- * # xa事务回滚
- * xa rollback 'xa_test';
- * <p>
- * # 在提交、回滚前查询事务状态
- * xa recover;
  *
+ * XA 分支事务流程
+ * xa_start xid 开启一个本地事务（XA分支事务）
+ * xa_end xid   结束一个本地事务（XA分支事务）
+ * xa_prepare xid，xa_commit xid，xa_rollback xid：预提交、提交和回滚一个本地事务。
+ * xa_recover：回滚一个已进行预提交的事务。
  *
  * 分布式事务实现思路
  * TM       全局事务管理器
